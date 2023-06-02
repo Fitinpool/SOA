@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  mysql:
+    container_name: mysql-gestion
+    image: mysql:8.0.31
+    restart: always
+    ports:
+      - "1313:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gestion_tienda
+    command: --lower_case_table_names=2
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/init.sql
+      #  - ./backup/backup.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mysql-network
+
+networks:
+  mysql-network:
+    driver: bridge
+
+# docker exec contenedor-name sh -c 'exec mysqldump -uroot -proot database > backup.sql' && docker cp mysql-puerto-sur:/backup.sql ./docker/backup/backup.sql
