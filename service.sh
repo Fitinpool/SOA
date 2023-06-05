@@ -15,7 +15,7 @@ trap 'cleanup' SIGINT SIGTERM
 docker-compose up -d
 
 # Esperar para asegurarnos de que los servicios de Docker Compose hayan comenzado
-sleep 10
+sleep 60
 
 # Ejecutar el archivo Python
 python3 ./tunel-ssh.py

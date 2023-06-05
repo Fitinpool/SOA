@@ -55,20 +55,22 @@ def procesar_mensaje(data_mensaje, sock):
     # Procesar la data
     tokens = data.split(":")
 
+    print(tokens)
     if tokens[0] == '1' : 
+        # 00151dbges1:INSERT INTO Productos (nombre, descripcion, precio, stock, fecha_vencimiento) VALUES (%s,%s,%s,%s,%s):manzana,ilustre manzana,2000,50,2023-12-10
         
         consulta = tokens[1]
 
-        variables = tokens[2]
+        variables = tuple(tokens[2].split(","))
 
         res = ejecutar_consulta_sql((consulta), variables)
 
+        print(res)
         if res.rowcount > 0:
-            print("Producto agregado.")
+            print(res.fetchall())
             newData = f'dbges1'
             sock.send((generar_codigo(newData) + newData).encode())
         else:
-            print("Producto no agregado.")
             newData = f'dbges0'
             sock.send((generar_codigo(newData) + newData).encode())
     elif tokens[0] == '0':
@@ -76,12 +78,11 @@ def procesar_mensaje(data_mensaje, sock):
 
         res = ejecutar_consulta_sql(consulta, None)
 
+        print(res)
         if res.rowcount > 0:
-            print("Producto agregado.")
             newData = f'dbges1'
             sock.send((generar_codigo(newData) + newData).encode())
         else:
-            print("Producto no agregado.")
             newData = f'dbges0'
             sock.send((generar_codigo(newData) + newData).encode())
 

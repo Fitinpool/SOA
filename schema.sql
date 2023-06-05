@@ -14,23 +14,21 @@ CREATE TABLE Categorias (
     nombre VARCHAR(255) NOT NULL UNIQUE
 );
 
-CREATE TABLE Categoria_Producto (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    categoria_id INT,
-    producto_id INT,
-    FOREIGN KEY (categoria_id) REFERENCES Categorias(id),
-    FOREIGN KEY (producto_id) REFERENCES Productos(id)
-);
-
 CREATE TABLE Productos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     descripcion TEXT,
     precio DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL,
-    fecha_vencimiento DATE,
+    fecha_vencimiento DATE
+);
+
+CREATE TABLE Categoria_Producto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     categoria_id INT,
-    FOREIGN KEY (categoria_id) REFERENCES Categorias(id)
+    producto_id INT,
+    FOREIGN KEY (categoria_id) REFERENCES Categorias(id),
+    FOREIGN KEY (producto_id) REFERENCES Productos(id)
 );
 
 CREATE TABLE Ventas (

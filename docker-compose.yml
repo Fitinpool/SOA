@@ -13,7 +13,6 @@ services:
     command: --lower_case_table_names=2
     volumes:
       - ./schema.sql:/docker-entrypoint-initdb.d/init.sql
-      #  - ./backup/backup.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - mysql-network
 

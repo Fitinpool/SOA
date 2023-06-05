@@ -8,6 +8,8 @@ load_dotenv()
 
 def execute_ssh_command(user, ip, port, local_port, remote_port, password):
     command = f"ssh -L {local_port}:localhost:{remote_port} {user}@{ip} -p {port}"
+
+    print(command)
     
     while True:
         try:
@@ -31,4 +33,4 @@ def execute_ssh_command(user, ip, port, local_port, remote_port, password):
             print(f"Ocurrió un error: {e}")
             break
 
-execute_ssh_command(os.getenv('USER'), os.getenv('IP'), 8080, 5000, 5000, os.getenv('PASSWORD'))
+execute_ssh_command(os.getenv('USER_DOCENCIA'), os.getenv('IP'), 8080, 5000, 5000, os.getenv('PASSWORD_DOCENCIA'))
