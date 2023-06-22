@@ -1,7 +1,9 @@
 import os
 import platform
 import socket
-import datetime
+import re
+from decimal import Decimal
+from datetime import datetime
 from prettytable import PrettyTable
 
 MAX_BUFFER_SIZE = 1024
@@ -81,13 +83,73 @@ def agregar_producto():
 
 def editar_producto():
     limpiar_pantalla()
-    mensaje = "Editar producto"
+    
+    print("\Editar Producto\n")
+    while True:
+        id = input("Ingrese el ID del producto: ")
+        
+        if id.isdigit():
+            break
+        else:
+            print("\nEl id es obligatorio.")
+
+    nombre = input("Ingrese el nombre del producto: ")
+    if nombre == '':
+        nombre = 'null'
+    descripcion = input("Ingrese la descripción del producto: ")
+    if descripcion == '':
+        descripcion = 'null'
+
+    while True:
+        precio = input("Ingrese el precio del producto: ")
+        
+        if precio.isdigit() or precio == '':
+            precio = 'null'
+            break
+        else:
+            print("\nEl precio debe ser un número entero. Inténtelo de nuevo.")
+    
+    while True:
+        stock = input("Ingrese el stock del producto: ")
+        if stock.isdigit() or stock == '':
+            stock = 'null'
+            break
+        else:
+            print("\nEl stock debe ser un número entero. Inténtelo de nuevo.")
+
+    while True:
+        fecha_vencimiento = input("Ingrese la fecha de vencimiento del producto (dd/mm/aaaa): ")
+
+        if fecha_vencimiento == '':
+            fecha_vencimiento = 'null'
+            break
+        else:
+            try:
+                datetime.datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
+                break
+            except ValueError:
+                print("\nFormato de fecha incorrecto. Debe ser dd/mm/aaaa. Inténtelo de nuevo.")
+
+    mensaje_sin_tamaño = f"gprodedit:{id}:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje = tamaño_mensaje + mensaje_sin_tamaño
+
     respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
     print("\nRespuesta del servidor:", respuesta)
 
 def eliminar_producto():
     limpiar_pantalla()
-    mensaje = "Eliminar producto"
+    print("\Eliminar Producto\n")
+    while True:
+        id = input("Ingrese el ID del producto: ")
+        if id.isdigit():
+            break
+        else:
+            print("\nEl id es obligatorio.")
+
+    mensaje_sin_tamaño = f"gproddel:{id}"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje = tamaño_mensaje + mensaje_sin_tamaño
     respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
     print("\nRespuesta del servidor:", respuesta)
 
@@ -105,8 +167,35 @@ def ver_producto_id():
 
     print("\nRespuesta del servidor:", respuesta)
 
-    tabla = PrettyTable()
-    tabla.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+    data_string = respuesta[12:]
+
+    data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
+    data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
+
+    # Eliminar los paréntesis y los espacios extra
+    data_string = re.sub(r"[()]", "", data_string)
+    data_string = re.sub(r"\s+", "", data_string)
+
+    # Dividir la cadena por las comas para obtener una lista de elementos
+    elementos = data_string.split(",")
+
+    # Agrupar los elementos en tuplas de 6
+    tuplas = [tuple(elementos[i:i+6]) for i in range(0, len(elementos), 6)]
+
+    # Convertir los valores de cadena a los tipos de datos apropiados
+    tuplas = [(int(id), nombre.strip("'"), descripcion.strip("'"), Decimal(precio.strip("'")), int(stock), datetime.strptime(fecha.strip("'"), "%Y-%m-%d").date()) for id, nombre, descripcion, precio, stock, fecha in tuplas]
+
+    table = PrettyTable()
+
+    # Añadir las columnas
+    table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+    print("datitos ", tuplas)
+    # Añadir las filas
+    for row in tuplas:
+        table.add_row(row)
+
+    # Imprimir la tabla
+    print(table)
 
 
 def limpiar_pantalla():

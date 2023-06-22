@@ -28,10 +28,10 @@ def procesar_mensaje(data_mensaje, sock):
         # Consulta SQL
         query = ("INSERT INTO Productos (nombre, descripcion, precio, stock, fecha_vencimiento) VALUES (%s,%s,%s,%s,%s)")
 
-        mensaje = 'dbges1:' + query + ':' + variables
+        mensaje = 'dbges0:' + query + ':' + variables
 
         mensaje = generar_codigo(mensaje) + mensaje
-
+        print(mensaje)
         sock.send(mensaje.encode())
     
         while True:
@@ -47,7 +47,8 @@ def procesar_mensaje(data_mensaje, sock):
             
             if data:
                 data = data[7:]
-                if data == '1':
+                print("SOY LA DATA DE RESPUESTA : ",data)
+                if data.split(':')[0] == '1':
                     print("Producto agregado.")
                     newData = f'gprod Producto {tokens[1]} Agregado!'
                     sock.send((generar_codigo(newData) + newData).encode())
@@ -61,13 +62,13 @@ def procesar_mensaje(data_mensaje, sock):
                 print("Conexión cerrada por el servidor.")
                 break
 
-    elif tokens[0] == 'delete':
+    elif tokens[0] == 'del':
          # 00014gproddelete:10
         variables = str(tokens[1])
         # Consulta SQL
         query = ("DELETE FROM Productos WHERE id=%s")
         
-        mensaje = 'dbges1:' + query + ':' + variables
+        mensaje = 'dbges0:' + query + ':' + variables
 
         mensaje = generar_codigo(mensaje) + mensaje
 
@@ -88,7 +89,7 @@ def procesar_mensaje(data_mensaje, sock):
                 print(data)
                 data = data[7:]
 
-                if data == '1':
+                if data.split(":")[0] == '1':
                     print("Producto eliminado.")
                     newData = f'gprod Producto {tokens[1]} eliminado!'
                     sock.send((generar_codigo(newData) + newData).encode())
@@ -104,12 +105,34 @@ def procesar_mensaje(data_mensaje, sock):
 
     elif tokens[0] == 'edit':
         # 00060gprodedit:11:manzana:editando la manzanita:2000:50:10/12/2023
-        variables = str(tokens[2]) + ',' + str(tokens[3]) + ',' + str(tokens[4]) + ',' + str(tokens[5]) + ',' + str(datetime.strptime(tokens[6], '%d/%m/%Y').date()) + ',' + str(tokens[1])
+        variables = ''
+        query = "UPDATE Productos SET "
+        for x in range(2, len(tokens)):
+            if tokens[x] != 'null':
+                variables += str(tokens[x]) + ','
+                if x == 2:
+                    query += "nombre = %s,"
+                elif x == 3:
+                    query += "descripcion = %s,"
+                elif x == 4:
+                    query += "precio = %s,"
+                elif x == 5:
+                    query += "stock = %s,"
+                elif x == 6:
+                    query += "fecha_vencimiento = %s,"
+
+        if query.endswith(","):
+            query = query[:-1]
+
+        variables += str(tokens[1]) 
+        query += " WHERE id = %s;"
+        
         # Consulta SQL
-        query = ("UPDATE Productos SET nombre = %s, descripcion = %s, precio = %s, stock = %s, fecha_vencimiento = %s WHERE id = %s")
+        query = (query)
 
-        mensaje = 'dbges1:' + query + ':' + variables
+        mensaje = 'dbges0:' + query + ':' + variables
 
+        print(mensaje)
         mensaje = generar_codigo(mensaje) + mensaje
 
         sock.send(mensaje.encode())
@@ -128,7 +151,7 @@ def procesar_mensaje(data_mensaje, sock):
             if data:
                 data = data[7:]
 
-                if data == '1':
+                if data.split(":")[0] == '1':
                     print("Producto editado.")
                     newData = f'gprod Producto {tokens[1]} editado!'
                     sock.send((generar_codigo(newData) + newData).encode())
@@ -145,9 +168,9 @@ def procesar_mensaje(data_mensaje, sock):
     elif tokens[0] == 'list':
         # 00060gprodedit:11:manzana:editando la manzanita:2000:50:10/12/2023
         
-        query = ("SELECT * FROM Productos")
+        query = ("SELECT * FROM Productos;")
 
-        mensaje = 'dbges0:' + query
+        mensaje = 'dbges1:' + query
 
         mensaje = generar_codigo(mensaje) + mensaje
 
@@ -165,16 +188,11 @@ def procesar_mensaje(data_mensaje, sock):
             data = data.decode()
             
             if data:
-                data = data[7:]
+                data = data[7:].split(':')
                 print(data)
-                if data == '1':
+                if data[0] == '1':
                     print("Productos Encontrados.")
-                    newData = f'gprod Producto {tokens[1]} editado!'
-                    sock.send((generar_codigo(newData) + newData).encode())
-                    break
-                else:
-                    print("Producto no eliminado.")
-                    newData = f'gprod Producto no {tokens[1]} editado!'
+                    newData = f'gprod{data[1]}'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
             else:
