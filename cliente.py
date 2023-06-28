@@ -207,6 +207,50 @@ def limpiar_pantalla():
 
 def registrar_venta():
     limpiar_pantalla()
+    
+    print("\nAgregar Venta\n")
+    #C ́odigo producto, can-tidad, fecha compra, precio.
+    nombre = input("Ingrese nombre/codigo de procuto vendido: ")
+
+    while True:
+        cantidad = input("Ingrese la cantidad: ")
+        if cantidad.isdigit():
+            break
+        else:
+            print("\nLa cantidad debe ser un numero entero.")
+    
+    while True:
+        precio = input("Ingrese precio del producto: ")
+        if precio.isdigit():
+            break
+        else:
+            print("\nEl stock debe ser un número entero. Inténtelo de nuevo.")
+
+    while True:
+        fecha_vendido = input("Ingrese la fecha de compra del producto (dd/mm/aaaa) o dejar en blanco: ")
+
+        if fecha_vendido == '':
+            fecha_vendido = '01/01/2000'
+            break
+        else:
+            try:
+                datetime.datetime.strptime(fecha_vendido, "%d/%m/%Y")
+                break
+            except ValueError:
+                print("\nFormato de fecha incorrecto. Debe ser dd/mm/aaaa. Inténtelo de nuevo.")
+
+    mensaje_sin_tamaño = f"gprodadd:{nombre}:{cantidad}:{precio}:{fecha_vendido}"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje = tamaño_mensaje + mensaje_sin_tamaño
+
+    print("\nMensaje enviado al servidor:", mensaje)
+
+    respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+
+    print("\nRespuesta del servidor:", respuesta)
+    
+
+    limpiar_pantalla()
     print("\nRegistrando Venta\n")
 
 def ver_productos():
