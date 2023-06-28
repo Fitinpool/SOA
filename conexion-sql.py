@@ -138,8 +138,9 @@ def procesar_mensaje(data_mensaje, sock):
         consulta = tokens[1]
 
         variables = tuple(tokens[2].split(",")) if len(tokens) > 2 else None
-
+        
         res = ejecutar_consulta_sql(consulta, variables, 1)
+
         if res.rowcount > 0:
             # Si la consulta fue un SELECT, devolvemos los resultados
             if "SELECT" in consulta.upper():

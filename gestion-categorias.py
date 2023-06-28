@@ -21,12 +21,10 @@ def procesar_mensaje(data_mensaje, sock):
     tokens = data.split(":")
 
     if tokens[0] == 'add':
-        # 00058gprodadd:polera:lindo producto para los niños:1000:100:null
-        # 00050gprodadd:manzana:ilustre manzana:2000:50:10/12/2023
-        variables = str(tokens[1]) + ',' + str(tokens[2]) + ',' + str(tokens[3]) + ',' + str(tokens[4])  + ',' + str(datetime.strptime(tokens[5], '%d/%m/%Y').date())
+        variables = str(tokens[1]) 
 
         # Consulta SQL
-        query = ("INSERT INTO Productos (nombre, descripcion, precio, stock, fecha_vencimiento) VALUES (%s,%s,%s,%s,%s)")
+        query = ("INSERT INTO Categorias (nombre) VALUES (%s);")
 
         mensaje = 'dbges0:' + query + ':' + variables
 
@@ -49,13 +47,13 @@ def procesar_mensaje(data_mensaje, sock):
                 data = data[7:]
                 print("SOY LA DATA DE RESPUESTA : ",data)
                 if data.split(':')[0] == '1':
-                    print("Producto agregado.")
-                    newData = f'gprod Producto {tokens[1]} Agregado!'
+                    print("Categoria agregada.")
+                    newData = f'gcate Categoria {tokens[1]} Agregada!'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
                 else:
-                    print("Producto no agregado.")
-                    newData = f'gprod Producto {tokens[1]} no fue agregado!'
+                    print("Categoria no agregado.")
+                    newData = f'gcate Categoria {tokens[1]} no fue agregada!'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
             else:
@@ -66,7 +64,7 @@ def procesar_mensaje(data_mensaje, sock):
          # 00014gproddelete:10
         variables = str(tokens[1])
         # Consulta SQL
-        query = ("DELETE FROM Productos WHERE id=%s")
+        query = ("DELETE FROM Categorias WHERE id=%s;")
         
         mensaje = 'dbges0:' + query + ':' + variables
 
@@ -90,13 +88,13 @@ def procesar_mensaje(data_mensaje, sock):
                 data = data[7:]
 
                 if data.split(":")[0] == '1':
-                    print("Producto eliminado.")
-                    newData = f'gprod Producto {tokens[1]} eliminado!'
+                    print("Categoria eliminada.")
+                    newData = f'gcate Categorias {tokens[1]} eliminada!'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
                 else:
-                    print("Producto no eliminado.")
-                    newData = f'gprod Producto no {tokens[1]} eliminado!'
+                    print("Categoria no eliminada.")
+                    newData = f'gcate Categorias no {tokens[1]} eliminada!'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
             else:
@@ -104,35 +102,51 @@ def procesar_mensaje(data_mensaje, sock):
                 break
 
     elif tokens[0] == 'edit':
-        # 00060gprodedit:11:manzana:editando la manzanita:2000:50:10/12/2023
-        variables = ''
-        query = "UPDATE Productos SET "
-        for x in range(2, len(tokens)):
-            if tokens[x] != 'null':
-                variables += str(tokens[x]) + ','
-                if x == 2:
-                    query += "nombre = %s,"
-                elif x == 3:
-                    query += "descripcion = %s,"
-                elif x == 4:
-                    query += "precio = %s,"
-                elif x == 5:
-                    query += "stock = %s,"
-                elif x == 6:
-                    query += "fecha_vencimiento = %s,"
-
-        if query.endswith(","):
-            query = query[:-1]
-
-        variables += str(tokens[1]) 
-        query += " WHERE id = %s;"
-        
+        variables = str(tokens[2]) + ',' + str(tokens[1]) 
         # Consulta SQL
-        query = (query)
+        query = "UPDATE Categorias SET nombre = %s WHERE id = %s;"
 
         mensaje = 'dbges0:' + query + ':' + variables
 
-        print(mensaje)
+        mensaje = generar_codigo(mensaje) + mensaje
+
+        sock.send(mensaje.encode())
+    
+        while True:
+            # Recibir y procesar las respuestas del servidor
+            amount_received = 0
+            amount_expected = int(sock.recv (5))
+
+            while amount_received < amount_expected:
+                data = sock.recv(amount_expected - amount_received)
+                amount_received += len (data)
+            
+            data = data.decode()
+            
+            if data:
+                data = data[7:]
+                if data.split(":")[0] == '1':
+                    print("Categoria editada.")
+                    newData = f'gcate Categoria {tokens[1]} editada!'
+                    sock.send((generar_codigo(newData) + newData).encode())
+                    break
+                else:
+                    print("Categoria no eliminado.")
+                    newData = f'gcate Categoria {tokens[1]} no editada!'
+                    sock.send((generar_codigo(newData) + newData).encode())
+                    break
+            else:
+                print("Conexión cerrada por el servidor.")
+                break
+    
+    elif tokens[0] == 'unir':
+        # 00060gprodedit:11:1
+        variables = str(tokens[1]) + ',' + str(tokens[2]) 
+
+        query = "INSERT INTO Categoria_Producto (categoria_id, producto_id) VALUES (%s,%s);"
+
+        mensaje = 'dbges0:' + query + ':' + variables
+
         mensaje = generar_codigo(mensaje) + mensaje
 
         sock.send(mensaje.encode())
@@ -152,52 +166,13 @@ def procesar_mensaje(data_mensaje, sock):
                 data = data[7:]
 
                 if data.split(":")[0] == '1':
-                    print("Producto editado.")
-                    newData = f'gprod Producto {tokens[1]} editado!'
+                    print("Se agregó la categoria al producto.")
+                    newData = f'gcate Categoria {tokens[1]} añadida!'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
                 else:
-                    print("Producto no eliminado.")
-                    newData = f'gprod Producto no {tokens[1]} editado!'
-                    sock.send((generar_codigo(newData) + newData).encode())
-                    break
-            else:
-                print("Conexión cerrada por el servidor.")
-                break
-    
-    elif tokens[0] == 'list':
-        # 00060gprodedit:11:manzana:editando la manzanita:2000:50:10/12/2023
-        
-        query = ("SELECT id, nombre, descripcion, precio, stock, fecha_vencimiento FROM Productos;")
-
-        mensaje = 'dbges1:' + query
-
-        mensaje = generar_codigo(mensaje) + mensaje
-
-        sock.send(mensaje.encode())
-    
-        while True:
-            # Recibir y procesar las respuestas del servidor
-            amount_received = 0
-            amount_expected = int(sock.recv (5))
-
-            while amount_received < amount_expected:
-                data = sock.recv(amount_expected - amount_received)
-                amount_received += len (data)
-            
-            data = data.decode()
-            
-            if data:
-                data = data[7:].split(':')
-                print(data)
-                if data[0] == '1':
-                    print("Productos Encontrados.")
-                    newData = f'gprod{data[1]}'
-                    sock.send((generar_codigo(newData) + newData).encode())
-                    break
-                else:
-                    print("Producto no Encontrados.")
-                    newData = f'gprod Productos no fueron encontrados!'
+                    print("Categoria no Unida")
+                    newData = f'gcate Categoria no {tokens[1]} añadida!'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
             else:
@@ -206,6 +181,8 @@ def procesar_mensaje(data_mensaje, sock):
             
     else:
         print("Sin procesar.")
+
+
 def enviar_mensaje(ip, puerto, mensaje):
     # Crear el socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -239,7 +216,7 @@ def enviar_mensaje(ip, puerto, mensaje):
 def main():
     ip = "127.0.0.1"  # Dirección IP del servidor local
     puerto = 5000  # Puerto del servidor local
-    mensaje = "00010sinitgprod"  # Mensaje a enviar
+    mensaje = "00010sinitgcate"  # Mensaje a enviar
 
     enviar_mensaje(ip, puerto, mensaje)
 
