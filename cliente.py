@@ -209,38 +209,25 @@ def registrar_venta():
     limpiar_pantalla()
     
     print("\nAgregar Venta\n")
-    #C ́odigo producto, can-tidad, fecha compra, precio.
-    nombre = input("Ingrese nombre/codigo de procuto vendido: ")
-
+    #Solo ingresar Fecha de la venta.
+   
     while True:
-        cantidad = input("Ingrese la cantidad: ")
-        if cantidad.isdigit():
-            break
-        else:
-            print("\nLa cantidad debe ser un numero entero.")
-    
-    while True:
-        precio = input("Ingrese precio del producto: ")
-        if precio.isdigit():
-            break
-        else:
-            print("\nEl stock debe ser un número entero. Inténtelo de nuevo.")
-
-    while True:
-        fecha_vendido = input("Ingrese la fecha de compra del producto (dd/mm/aaaa) o dejar en blanco: ")
+        fecha_vendido = input("Ingrese la fecha de compra del producto (dd/mm/aaaa) o dejar en blanco si la venta es hoy: ")
 
         if fecha_vendido == '':
-            fecha_vendido = '01/01/2000'
+            fecha_vendido = datetime.now().strftime("%d/%m/%Y")
+            print("Fecha de la Venta: ", fecha_vendido)
             break
         else:
             try:
-                datetime.datetime.strptime(fecha_vendido, "%d/%m/%Y")
+                datetime.strptime(fecha_vendido, "%d/%m/%Y")
+                print("Fecha de la Venta: ", fecha_vendido)
                 break
             except ValueError:
                 print("\nFormato de fecha incorrecto. Debe ser dd/mm/aaaa. Inténtelo de nuevo.")
 
-    mensaje_sin_tamaño = f"gprodadd:{nombre}:{cantidad}:{precio}:{fecha_vendido}"
-    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje_sin_tamaño = f"gventaddVenta:{fecha_vendido}"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"  #Esta parte no se que hace#
     mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
     print("\nMensaje enviado al servidor:", mensaje)
@@ -249,9 +236,56 @@ def registrar_venta():
 
     print("\nRespuesta del servidor:", respuesta)
     
+    venta_id = re.search(r'gvent1:(\d+)', respuesta)
+    if venta_id:
+        venta_id = venta_id.group(1)
+        print("ID de la venta:", venta_id)
+    else:
+        print("No se pudo obtener el ID de la venta.")
+
+    print("\nRegistrando Venta\n")
 
     limpiar_pantalla()
-    print("\nRegistrando Venta\n")
+
+    while True:
+        cantidad_prod = input("Ingrese la cantidad de tipos de productos vendidos: ")
+        if cantidad_prod.isdigit() or int(cantidad_prod) <= 0:
+            break
+        else:
+            print("\nLa cantidad debe ser un número entero o mayor a 0. Inténtelo de nuevo.")
+    
+    limpiar_pantalla()
+    
+    detalles_ventas = []
+    for i in range(cantidad_tipos_productos):
+        limpiar_pantalla()
+
+        # Mostrar la lista de productos existentes
+        ver_producto_id()
+
+        # Solicitar los detalles del producto
+        while True:
+            try:
+                id_producto = int(input("\nIngrese el ID del producto: "))
+                cantidad_producto = int(input("Ingrese la cantidad de este producto vendido: "))
+                precio_producto = float(input("Ingrese el precio de venta del producto: "))
+                break
+            except ValueError:
+                print("Valor inválido. Intente nuevamente.")
+
+        # Guardar los detalles del producto en una tupla
+        detalles_ventas.append((venta_id, id_producto, cantidad_producto, precio_producto))
+
+    # Enviar los detalles de venta al servicio de gestión de ventas
+    mensaje_sin_tamaño = f"gventaddDet:{venta_id}:{cantidad_prod}:{','.join(map(str, detalles_ventas))}"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje = tamaño_mensaje + mensaje_sin_tamaño
+
+    print("\nMensaje enviado al servidor:", mensaje)
+
+    respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+    print("\nRespuesta del servidor:", respuesta)
+
 
 def ver_productos():
     limpiar_pantalla()
