@@ -136,7 +136,7 @@ def editar_producto():
             break
         else:
             try:
-                datetime.datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
+                datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
                 break
             except ValueError:
                 print("\nFormato de fecha incorrecto. Debe ser dd/mm/aaaa. Inténtelo de nuevo.")
@@ -253,28 +253,27 @@ def registrar_venta():
 
     print("\nRespuesta del servidor:", respuesta)
     
-    venta_id = re.search(r'gvent1:(\d+)', respuesta)
-    if venta_id:
-        venta_id = venta_id.group(1)
-        print("ID de la venta:", venta_id)
-    else:
-        print("No se pudo obtener el ID de la venta.")
-
+    venta_id = respuesta[39:]
+    print(venta_id)
     print("\nRegistrando Venta\n")
 
-    limpiar_pantalla()
+    
 
     while True:
-        cantidad_prod = input("Ingrese la cantidad de tipos de productos vendidos: ")
-        if cantidad_prod.isdigit() or int(cantidad_prod) <= 0:
-            break
-        else:
-            print("\nLa cantidad debe ser un número entero o mayor a 0. Inténtelo de nuevo.")
+        try:
+
+            cantidad_prod = int(input("Ingrese la cantidad de tipos de productos vendidos: "))
+            if cantidad_prod >= 0:
+                break
+            else:
+                print("\nLa cantidad debe ser un número entero o mayor a 0. Inténtelo de nuevo.")
+        except ValueError:
+            print("\nValor invalido")
     
     limpiar_pantalla()
     
     detalles_ventas = []
-    for i in range(cantidad_tipos_productos):
+    for i in range(cantidad_prod):
         limpiar_pantalla()
 
         # Mostrar la lista de productos existentes
@@ -291,7 +290,7 @@ def registrar_venta():
                 print("Valor inválido. Intente nuevamente.")
 
         # Guardar los detalles del producto en una tupla
-        detalles_ventas.append((venta_id, id_producto, cantidad_producto, precio_producto))
+        detalles_ventas.append((int(venta_id), id_producto, cantidad_producto, precio_producto))
 
     # Enviar los detalles de venta al servicio de gestión de ventas
     mensaje_sin_tamaño = f"gventaddDet:{venta_id}:{cantidad_prod}:{','.join(map(str, detalles_ventas))}"
@@ -682,6 +681,55 @@ if __name__ == "__main__":
     datos = {}
 
     while True:
+
+        # Ingresar al sistema con un usuario y contraseña válidos
+        while True:
+            limpiar_pantalla()
+            print("------------- LOGIN ------------")
+            print("|                             |")
+            print("|   1. Ingresar al sistema    |")
+            print("|   2. Salir                  |")
+            print("|                             |")
+            print("--------------------------------")
+
+            opcion_login = input("\nIngrese su opción: ")
+
+            if opcion_login == '1':
+                break
+            elif opcion_login == '2':
+                exit()
+            else:
+                print("\nEntrada no válida, intentelo de nuevo.")
+
+        while True:
+            limpiar_pantalla()
+            print("------------- LOGIN ------------")
+            print("|                             |")
+            print("|   Ingrese sus credenciales  |")
+            print("|                             |")
+            print("--------------------------------")
+
+            usuario = input("\nUsuario: ")
+            contraseña = input("Contraseña: ")
+
+            mensaje_sin_tamaño = f"login:{usuario}:{contraseña}"
+            tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+            mensaje = tamaño_mensaje + mensaje_sin_tamaño
+
+            print("\nMensaje enviado al servidor:", mensaje)
+
+            respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+
+            print("\nRespuesta del servidor:", respuesta)
+
+            if respuesta.split(':')[2] == '1':
+                print("\nCredenciales correctas.")
+                break
+            else:
+                print("\nCredenciales incorrectas. Inténtelo de nuevo.")
+                
+            
+
         menu_principal()
         opcion = input("\nIngrese su opción: ")
 

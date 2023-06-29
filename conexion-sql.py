@@ -150,10 +150,15 @@ def procesar_mensaje(data_mensaje, sock):
                 dataString = ','.join([str(i) for i in res.fetchall()])
                 newData = f'dbges1:{dataString}'
             elif "INSERT" in consulta.upper() and variables is not None:
-                # Si la consulta fue un INSERT, devolvemos los datos insertados
-                newData = f'dbges1:{res}'
+                tabla = consulta.split(' ')[2]
+
+                res2 = ejecutar_consulta_sql(f'SELECT MAX(id) FROM {tabla}', None, 1)
+                print(res2)
+                datitos = res2.fetchall()[0][0]
+                newData = f'dbges1:Logrado! ID: {datitos}'  # Devolvemos el ID del registro insertado
             else:
                 newData = f'dbges1:Logrado'
+
             sock.send((generar_codigo(newData) + newData).encode())
         else:
             newData = f'dbges0:No logrado'

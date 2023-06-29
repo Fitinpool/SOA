@@ -1,5 +1,6 @@
 import socket
 from datetime import datetime
+import re
 
 MAX_BUFFER_SIZE = 1024
 
@@ -16,9 +17,9 @@ def procesar_mensaje(data_mensaje, sock):
     tokens = data.split(":")
 
     if tokens[0] == 'addVenta':
-        variables = str(datetime.strptime(tokens[1], '%d-%m-%Y').date())
+        variables = str(datetime.strptime(tokens[1], '%d/%m/%Y').date())
 
-        query = "INSERT INTO Ventas (fecha_venta) VALUES (%s)"
+        query = "INSERT INTO Ventas (fecha_venta, tienda_id) VALUES (%s, 1)"
 
         mensaje = 'dbges1:' + query + ':' + variables
 
@@ -42,14 +43,16 @@ def procesar_mensaje(data_mensaje, sock):
                 if data.split(':')[0] == '1':
                     print("Venta agregada.")
                     # Extraer el ID de la venta utilizando expresiones regulares
-                    venta_id = re.search(r'Venta de \d+ agregada! ID: (\d+)', data)
-                    if venta_id:
-                        venta_id = venta_id.group(1)
+                    venta_id = data.split('ID: ')[1]
+                    print(venta_id)
+                    if venta_id.isdigit():
                         print("ID de la venta:", venta_id)
+                        newData = f'gvent Venta {tokens[1]} agregada!' + venta_id
+                        sock.send((generar_codigo(newData) + newData).encode())
+
                     else:
                         print("No se pudo obtener el ID de la venta.")
-                        newData = f'gvent Venta de {tokens[1]} agregada!'
-                        sock.send((generar_codigo(newData) + newData).encode())
+                        newData = f'gvent Venta de {tokens[1]} no fue agregada!'
                 else:
                     print("Venta no agregada.")
                     newData = f'gvent Venta de {tokens[1]} no fue agregada!'
@@ -59,15 +62,21 @@ def procesar_mensaje(data_mensaje, sock):
             break
     elif tokens[0] == 'addDet':
         venta_id = tokens[1]
-        cant_prod = tokens[2]
-
+        print(type(tokens[2]))
+        cant_prod = int(tokens[2])
+        
         for i in range(cant_prod):
-            tuplas = tokens[3 + i].split(",")
-            producto_id = int(tuplas[0])
-            cantidad = int(tuplas[1])
-            precio = float(tuplas[2])
+            liempieza = tokens[3].replace('(', '')
+            liempieza = liempieza.replace(')', '')
+            tuplas = liempieza.split(',')
+            tuplas = [tuple(tuplas[i:i+4]) for i in range(0, len(tuplas), 4)]
 
-            query = "INSERT INTO Detalles_Ventas (venta_id, producto_id, cantidad, precio) VALUES (%s,%s,%s,%s)"
+            print(tuplas)
+            producto_id = int(tuplas[i][0])
+            cantidad = int(tuplas[i][1])
+            precio = float(tuplas[i][2])
+
+            query = "INSERT INTO Detalles_Ventas (venta_id, producto_id, cantidad, precio) VALUES (%s,%s,%d,%s)"
             variables = (venta_id, producto_id, cantidad, precio)
 
             mensaje = 'dbges1:' + query + ':' + ','.join(map(str, variables))
@@ -134,7 +143,7 @@ def enviar_mensaje(ip, puerto, mensaje):
 def main():
     ip = "127.0.0.1"  # Dirección IP del servidor local
     puerto = 5000  # Puerto del servidor local
-    mensaje = "00010sinitgprod"  # Mensaje a enviar
+    mensaje = "00010sinitgvent"  # Mensaje a enviar
 
     enviar_mensaje(ip, puerto, mensaje)
 

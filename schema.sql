@@ -63,7 +63,6 @@ CREATE TABLE `Usuarios` (
 CREATE TABLE `Ventas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `fecha_venta` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `total` decimal(10,2) NOT NULL,
   `tienda_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `tienda_id` (`tienda_id`),
