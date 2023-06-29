@@ -15,12 +15,12 @@ def procesar_mensaje(data_mensaje, sock):
 
     tokens = data.split(":")
 
-    if tokens[0] == 'add':
-        variables = str(tokens[1]) + ',' + str(tokens[2]) + ',' + str(tokens[3]) + ',' + str(datetime.strptime(tokens[4], '%Y-%m-%d').date())
+    if tokens[0] == 'addVenta':
+        variables = str(datetime.strptime(tokens[1], '%d-%m-%Y').date())
 
-        query = "INSERT INTO Ventas (producto, cantidad, precio, fecha_venta) VALUES (%s,%s,%s,%s)"
+        query = "INSERT INTO Ventas (fecha_venta) VALUES (%s)"
 
-        mensaje = 'dbges0:' + query + ':' + variables
+        mensaje = 'dbges1:' + query + ':' + variables
 
         mensaje = generar_codigo(mensaje) + mensaje
         print(mensaje)
@@ -41,17 +41,62 @@ def procesar_mensaje(data_mensaje, sock):
                 print("SOY LA DATA DE RESPUESTA:", data)
                 if data.split(':')[0] == '1':
                     print("Venta agregada.")
-                    newData = f'gvent Venta de {tokens[1]} agregada!'
-                    sock.send((generar_codigo(newData) + newData).encode())
-                    break
+                    # Extraer el ID de la venta utilizando expresiones regulares
+                    venta_id = re.search(r'Venta de \d+ agregada! ID: (\d+)', data)
+                    if venta_id:
+                        venta_id = venta_id.group(1)
+                        print("ID de la venta:", venta_id)
+                    else:
+                        print("No se pudo obtener el ID de la venta.")
+                        newData = f'gvent Venta de {tokens[1]} agregada!'
+                        sock.send((generar_codigo(newData) + newData).encode())
                 else:
                     print("Venta no agregada.")
                     newData = f'gvent Venta de {tokens[1]} no fue agregada!'
                     sock.send((generar_codigo(newData) + newData).encode())
-                    break
-            else:
+            else :
                 print("Conexión cerrada por el servidor.")
+            break
+    elif tokens[0] == 'addDet':
+        venta_id = tokens[1]
+        cant_prod = tokens[2]
+
+        for i in range(cant_prod):
+            tuplas = tokens[3 + i].split(",")
+            producto_id = int(tuplas[0])
+            cantidad = int(tuplas[1])
+            precio = float(tuplas[2])
+
+            query = "INSERT INTO Detalles_Ventas (venta_id, producto_id, cantidad, precio) VALUES (%s,%s,%s,%s)"
+            variables = (venta_id, producto_id, cantidad, precio)
+
+            mensaje = 'dbges1:' + query + ':' + ','.join(map(str, variables))
+
+            mensaje = generar_codigo(mensaje) + mensaje
+            print(mensaje)
+            sock.send(mensaje.encode())
+
+            while True:
+                amount_received = 0
+                amount_expected = int(sock.recv(5))
+
+                while amount_received < amount_expected:
+                    data = sock.recv(amount_expected - amount_received)
+                    amount_received += len(data)
+
+                data = data.decode()
+
+                if data:
+                    data = data[7:]
+                    print("SOY LA DATA DE RESPUESTA:", data)
+                    if data.split(':')[0] == '1':
+                        print("Detalle de venta agregado.")
+                    else:
+                        print("Detalle de venta no agregado.")
+                else:
+                    print("Conexión cerrada por el servidor.")
                 break
+
 
 def enviar_mensaje(ip, puerto, mensaje):
     # Crear el socket
