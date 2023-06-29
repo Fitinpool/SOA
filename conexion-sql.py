@@ -138,10 +138,13 @@ def procesar_mensaje(data_mensaje, sock):
         consulta = tokens[1]
 
         variables = tuple(tokens[2].split(",")) if len(tokens) > 2 else None
-        
+
         res = ejecutar_consulta_sql(consulta, variables, 1)
 
-        if res.rowcount > 0:
+        if res == []:
+            newData = f'dbges0:No logrado'
+            sock.send((generar_codigo(newData) + newData).encode())
+        elif res.rowcount > 0:
             # Si la consulta fue un SELECT, devolvemos los resultados
             if "SELECT" in consulta.upper():
                 dataString = ','.join([str(i) for i in res.fetchall()])

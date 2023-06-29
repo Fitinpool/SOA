@@ -41,45 +41,56 @@ def agregar_producto():
     
     print("\nAgregar Producto\n")
 
-    nombre = input("Ingrese el nombre del producto: ")
-    descripcion = input("Ingrese la descripción del producto: ")
+    opcion = input("Ingrese 9 para volver atrás o cualquier otra tecla para continuar: ")
 
-    while True:
-        precio = input("Ingrese el precio del producto: ")
-        if precio.isdigit():
-            break
-        else:
-            print("\nEl precio debe ser un número entero. Inténtelo de nuevo.")
-    
-    while True:
-        stock = input("Ingrese el stock del producto: ")
-        if stock.isdigit():
-            break
-        else:
-            print("\nEl stock debe ser un número entero. Inténtelo de nuevo.")
+    if opcion != '9':
+        nombre = input("Ingrese el nombre del producto: ")
+        descripcion = input("Ingrese la descripción del producto: ")
 
-    while True:
-        fecha_vencimiento = input("Ingrese la fecha de vencimiento del producto (dd/mm/aaaa) o dejar en blanco: ")
-
-        if fecha_vencimiento == '':
-            fecha_vencimiento = '01/01/2000'
-            break
-        else:
-            try:
-                datetime.datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
+        while True:
+            precio = input("Ingrese el precio del producto: ")
+            if precio.isdigit():
                 break
-            except ValueError:
-                print("\nFormato de fecha incorrecto. Debe ser dd/mm/aaaa. Inténtelo de nuevo.")
+            else:
+                print("\nEl precio debe ser un número entero. Inténtelo de nuevo.")
+        
+        while True:
+            stock = input("Ingrese el stock del producto: ")
+            if stock.isdigit():
+                break
+            else:
+                print("\nEl stock debe ser un número entero. Inténtelo de nuevo.")
 
-    mensaje_sin_tamaño = f"gprodadd:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
-    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
-    mensaje = tamaño_mensaje + mensaje_sin_tamaño
+        while True:
+            fecha_vencimiento = input("Ingrese la fecha de vencimiento del producto (dd/mm/aaaa) o dejar en blanco: ")
 
-    print("\nMensaje enviado al servidor:", mensaje)
+            if fecha_vencimiento == '':
+                fecha_vencimiento = '01/01/2000'
+                break
+            else:
+                try:
+                    datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
+                    break
+                except ValueError:
+                    print("\nFormato de fecha incorrecto. Debe ser dd/mm/aaaa. Inténtelo de nuevo.")
 
-    respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+        mensaje_sin_tamaño = f"gprodadd:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
+        tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+        mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
-    print("\nRespuesta del servidor:", respuesta)
+        print("\nMensaje enviado al servidor:", mensaje)
+
+        respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+
+        print("\nRespuesta del servidor:", respuesta)
+
+        # mensaje_sin_tamaño = f"histoadd:{precio}"
+        # tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+        # mensaje = tamaño_mensaje + mensaje_sin_tamaño
+        # respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+
+    else:
+        gestionar_productos()
 
 def editar_producto():
     limpiar_pantalla()
@@ -136,6 +147,12 @@ def editar_producto():
 
     respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
     print("\nRespuesta del servidor:", respuesta)
+
+    # if precio != 'null':
+    #     mensaje_sin_tamaño = f"histoupdate:{id}:{stock}"
+    #     tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    #     mensaje = tamaño_mensaje + mensaje_sin_tamaño
+    #     respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
 def eliminar_producto():
     limpiar_pantalla()
@@ -303,7 +320,7 @@ def gestionar_productos():
 def gestionar_categorias():
     limpiar_pantalla()
     while True:
-        print("---------- GESTIONAR PRODUCTOS ---------")
+        print("---------- GESTIONAR CATEGORIAS ---------")
         print("|                                      |")
         print("|   1. Agregar Categoria               |")
         print("|   2. Editar Categoria                |")
@@ -437,7 +454,7 @@ def productos_menos_stock():
 
     data_string = respuesta[12:]
 
-    if data_string != 'No existen productos cerca a vencer (10 días)':
+    if data_string != ' No existen productos cerca a vencer (10 días)':
         data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
         data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
 
@@ -459,6 +476,7 @@ def productos_menos_stock():
         # Añadir las columnas
         table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
         print("datitos ", tuplas)
+        print("\nProductos con menos stock (10 unidades)\n")
         # Añadir las filas
         for row in tuplas:
             table.add_row(row)
@@ -482,7 +500,61 @@ def productos_cerca_vencer():
     
     data_string = respuesta[12:]
 
-    if data_string != 'No existen productos cerca a vencer (10 días)':
+    if data_string != ' No existen productos cerca a vencer (10 días)':
+        data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
+        data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
+
+        # Eliminar los paréntesis y los espacios extra
+        data_string = re.sub(r"[()]", "", data_string)
+        data_string = re.sub(r"\s+", "", data_string)
+
+        # Dividir la cadena por las comas para obtener una lista de elementos
+        elementos = data_string.split(",")
+
+        # Agrupar los elementos en tuplas de 6
+        tuplas = [tuple(elementos[i:i+6]) for i in range(0, len(elementos), 6)]
+
+        # Convertir los valores de cadena a los tipos de datos apropiados
+        tuplas = [(int(id), nombre.strip("'"), descripcion.strip("'"), Decimal(precio.strip("'")), int(stock), datetime.strptime(fecha.strip("'"), "%Y-%m-%d").date()) for id, nombre, descripcion, precio, stock, fecha in tuplas]
+
+        table = PrettyTable()
+
+        # Añadir las columnas
+        table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+        print("datitos ", tuplas)
+        print("\nProductos cerca a vencer (10 días)\n")
+
+        # Añadir las filas
+        for row in tuplas:
+            table.add_row(row)
+
+        # Imprimir la tabla
+        print(table)
+
+def historial_precios():
+    limpiar_pantalla()
+
+    print("\nHistorial de precios (por ID)\n")
+    while True:
+        search = input("Ingrese producto: ")
+        if search.isdigit() and search >= 0:
+            break
+        else:
+            print("\nEntrada incorrecta. Inténtelo de nuevo.")
+
+    mensaje_sin_tamaño = f"histolist:{search}"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje = tamaño_mensaje + mensaje_sin_tamaño
+
+    print("\nMensaje enviado al servidor:", mensaje)
+
+    respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+
+    print("\nRespuesta del servidor:", respuesta)
+
+    data_string = respuesta[12:]
+
+    if data_string != ' Producto no encontrado!':
         data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
         data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
 
@@ -511,25 +583,26 @@ def productos_cerca_vencer():
         # Imprimir la tabla
         print(table)
 
-
-
 def menu_principal():
     limpiar_pantalla()
     print("------------- MENU PRINCIPAL ------------")
     print("|                                      |")
     print("|   1. Registrar Venta                 |")
-    print("|   2. Ver Productos                   |")
-    print("|   3. Buscar Producto                 |")
-    print("|   4. Ver estadisticas                |")
-    print("|   5. Gestionar Productos             |")
-    print("|   6. Gestionar Categorias            |")
-    print("|   7. Productos con menos stock       |")
-    print("|   8. Productos cerca a vencer        |")
+    print("|   2. Buscar Producto                 |")
+    print("|   3. Ver estadisticas                |")
+    print("|   4. Gestionar Productos             |")
+    print("|   5. Gestionar Categorias            |")
+    print("|   6. Productos con menos stock       |")
+    print("|   7. Productos cerca a vencer        |")
+    print("|   8. Historial de precios producto   |")
     print("|   9. Salir                           |")
     print("|                                      |")
     print("----------------------------------------")
 
 if __name__ == "__main__":
+
+    datos = {}
+
     while True:
         menu_principal()
         opcion = input("\nIngrese su opción: ")
@@ -537,19 +610,19 @@ if __name__ == "__main__":
         if opcion == '1':
             registrar_venta()
         elif opcion == '2':
-            ver_productos()
-        elif opcion == '3':
             buscar_producto()
-        elif opcion == '4':
+        elif opcion == '3':
             ver_estadisticas()
-        elif opcion == '5':
+        elif opcion == '4':
             gestionar_productos()
-        elif opcion == '6':
+        elif opcion == '5':
             gestionar_categorias()
-        elif opcion == '7':
+        elif opcion == '6':
             productos_menos_stock()
-        elif opcion == '8':
+        elif opcion == '7':
             productos_cerca_vencer()
+        elif opcion == '8':
+            historial_precios()
         elif opcion == '9':
             break
         else:
