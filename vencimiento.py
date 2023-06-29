@@ -22,12 +22,11 @@ def procesar_mensaje(data_mensaje, sock):
 
     if tokens[0] == 'list':
         fecha_actual = datetime.now().date()
-        fecha_actual = fecha_actual.strftime('%d/%m/%Y')
         fecha_comparar = fecha_actual - timedelta(days=10)
 
         query = ("SELECT id, nombre, descripcion, precio, stock, fecha_vencimiento FROM Productos WHERE fecha_vencimiento BETWEEN %s AND %s ORDER BY fecha_vencimiento ASC")
         
-        mensaje = 'dbges1:' + query + ':' + fecha_comparar + ',' + fecha_actual
+        mensaje = 'dbges1:' + query + ':' + str(fecha_comparar) + ',' + str(fecha_actual)
 
         mensaje = generar_codigo(mensaje) + mensaje
 
@@ -48,13 +47,13 @@ def procesar_mensaje(data_mensaje, sock):
                 data = data[7:].split(':')
                 print(data)
                 if data[0] == '1':
-                    print("Productos Encontrados.")
-                    newData = f'stock{data[1]}'
+                    print("Productos encontrados.")
+                    newData = f'vence{data[1]}'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
                 else:
-                    print("Producto no Encontrados.")
-                    newData = f'stock No existen productos cerca a vencer (10 días)'
+                    print("Producto no encontrados.")
+                    newData = f'vence No existen productos cerca a vencer (10 días)'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
             else:
