@@ -25,7 +25,7 @@ def procesar_mensaje(data_mensaje, sock):
         fecha_actual = fecha_actual.strftime('%d/%m/%Y')
         fecha_comparar = fecha_actual - timedelta(days=10)
 
-        query = ("SELECT id, nombre, descripcion, precio, stock, fecha_vencimiento FROM Productos WHERE fecha_vencimiento BETWEEN %s AND %s")
+        query = ("SELECT id, nombre, descripcion, precio, stock, fecha_vencimiento FROM Productos WHERE fecha_vencimiento BETWEEN %s AND %s ORDER BY fecha_vencimiento ASC")
         
         mensaje = 'dbges1:' + query + ':' + fecha_comparar + ',' + fecha_actual
 
