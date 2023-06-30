@@ -362,7 +362,126 @@ def buscar_producto():
 
 def ver_estadisticas():
     limpiar_pantalla()
+
     print("\nViendo Estadisticas\n")
+    
+    while True:
+        print("------------- ESTADÍSTICAS ------------")
+        print("|                                      |")
+        print("|   1. Ver producto menos vendido      |")
+        print("|   2. Ver producto mas vendido        |")
+        print("|   9. Salir                           |")
+        print("|                                      |")
+        print("----------------------------------------")
+
+        opcion = input("\nIngrese su opción: ")
+
+        if opcion == '1':
+            productos_menos_vendidos()
+        elif opcion == '2':
+            productos_mas_vendidos()
+        elif opcion == '9':
+            break
+        else:
+            print("\nEntrada no válida, intentelo de nuevo.")
+    
+    input("\nPresione Enter para continuar...")
+
+
+
+def productos_menos_vendidos():
+    limpiar_pantalla()
+
+    mensaje = "Ver producto menos vendido"
+
+    mensaje_sin_tamaño = f"estadmenosVend"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje = tamaño_mensaje + mensaje_sin_tamaño
+
+    print("\nMensaje enviado al servidor:", mensaje)
+
+    respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+
+    print("\nRespuesta del servidor:", respuesta)
+
+    data_string = respuesta[12:]
+
+    if data_string != ' Productos no fueron encontrados!':
+        data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
+        data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
+
+        # Eliminar los paréntesis y los espacios extra
+        data_string = re.sub(r"[()]", "", data_string)
+        data_string = re.sub(r"\s+", "", data_string)
+
+        # Dividir la cadena por las comas para obtener una lista de elementos
+        elementos = data_string.split(",")
+
+        # Agrupar los elementos en tuplas de 6
+        tuplas = [tuple(elementos[i:i+6]) for i in range(0, len(elementos), 6)]
+
+        # Convertir los valores de cadena a los tipos de datos apropiados
+        tuplas = [(int(id), nombre.strip("'"), descripcion.strip("'"), Decimal(precio.strip("'")), int(stock), datetime.strptime(fecha.strip("'"), "%Y-%m-%d").date()) for id, nombre, descripcion, precio, stock, fecha in tuplas]
+
+        table = PrettyTable()
+
+        # Añadir las columnas
+        table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+        print("datitos ", tuplas)
+        print("\nProductos menos vendidos\n")
+        # Añadir las filas
+        for row in tuplas:
+            table.add_row(row)
+
+        # Imprimir la tabla
+        print(table)
+
+def  productos_mas_vendidos():
+    limpiar_pantalla()
+
+    mensaje = "Ver producto mas vendido"
+
+    mensaje_sin_tamaño = f"estadmasVend"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje = tamaño_mensaje + mensaje_sin_tamaño
+
+    print("\nMensaje enviado al servidor:", mensaje)
+
+    respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+
+    print("\nRespuesta del servidor:", respuesta)
+
+    data_string = respuesta[12:]
+
+    if data_string != ' Productos no fueron encontrados!':
+        data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
+        data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
+
+        # Eliminar los paréntesis y los espacios extra
+        data_string = re.sub(r"[()]", "", data_string)
+        data_string = re.sub(r"\s+", "", data_string)
+
+        # Dividir la cadena por las comas para obtener una lista de elementos
+        elementos = data_string.split(",")
+
+        # Agrupar los elementos en tuplas de 6
+        tuplas = [tuple(elementos[i:i+6]) for i in range(0, len(elementos), 6)]
+
+        # Convertir los valores de cadena a los tipos de datos apropiados
+        tuplas = [(int(id), nombre.strip("'"), descripcion.strip("'"), Decimal(precio.strip("'")), int(stock), datetime.strptime(fecha.strip("'"), "%Y-%m-%d").date()) for id, nombre, descripcion, precio, stock, fecha in tuplas]
+
+        table = PrettyTable()
+
+        # Añadir las columnas
+        table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+        print("datitos ", tuplas)
+        print("\nProductos menos vendidos\n")
+        # Añadir las filas
+        for row in tuplas:
+            table.add_row(row)
+
+        # Imprimir la tabla
+        print(table)
 
 def gestionar_productos():
     limpiar_pantalla()
