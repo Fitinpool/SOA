@@ -12,7 +12,8 @@ services:
       MYSQL_DATABASE: gestion_tienda
     command: --lower_case_table_names=2
     volumes:
-      - ./schema.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./schema.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backup/backup.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - mysql-network
 
@@ -20,4 +21,4 @@ networks:
   mysql-network:
     driver: bridge
 
-# docker exec contenedor-name sh -c 'exec mysqldump -uroot -proot database > backup.sql' && docker cp mysql-puerto-sur:/backup.sql ./docker/backup/backup.sql
+# docker exec mysql-gestion sh -c 'exec mysqldump -uroot -proot gestion_tienda > backup.sql' && docker cp mysql-gestion:/backup.sql ./backup.sql
