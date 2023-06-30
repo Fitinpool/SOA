@@ -173,7 +173,10 @@ def procesar_mensaje(data_mensaje, sock):
         res = ejecutar_consulta_sql(consulta, variables, 0)
 
         # En lugar de devolver los resultados de la consulta, devolvemos un mensaje de éxito o fracaso
-        if res > 0:
+        if res == []:
+            newData = f'dbges0:No logrado'
+            sock.send((generar_codigo(newData) + newData).encode())
+        elif res > 0:
             newData = f'dbges1:Logrado'
         else:
             newData = f'dbges0:No logrado'

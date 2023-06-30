@@ -291,6 +291,17 @@ def registrar_venta():
 
         # Guardar los detalles del producto en una tupla
         detalles_ventas.append((int(venta_id), id_producto, cantidad_producto, precio_producto))
+        print("\Editar Producto\n")
+        id = id_producto
+        nombre = 'null'
+        descripcion = 'null'
+        precio = 'null'
+        stock = 'null'
+        fecha_vencimiento = 'null'
+        mensaje_sin_tamaño = f"gprodedit:{id}:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
+        tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+        mensaje = tamaño_mensaje + mensaje_sin_tamaño
+        respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
     # Enviar los detalles de venta al servicio de gestión de ventas
     mensaje_sin_tamaño = f"gventaddDet:{venta_id}:{cantidad_prod}:{','.join(map(str, detalles_ventas))}"
@@ -832,15 +843,15 @@ if __name__ == "__main__":
             usuario = input("\nUsuario: ")
             contraseña = input("Contraseña: ")
 
-            mensaje_sin_tamaño = f"login:{usuario}:{contraseña}"
+            mensaje_sin_tamaño = f"login:{usuario},{contraseña}"
             tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
             mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
             print("\nMensaje enviado al servidor:", mensaje)
 
-            # respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+            respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
-            # print("\nRespuesta del servidor:", respuesta)
+            print("\nRespuesta del servidor:", respuesta)
 
             break
             # if respuesta.split(':')[2] == '1':
