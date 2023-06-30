@@ -910,36 +910,37 @@ if __name__ == "__main__":
             tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
             mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
-            # print("\nMensaje enviado al servidor:", mensaje)
+            print("\nMensaje enviado al servidor:", mensaje)
 
-            # respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+            respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
-            # print("\nRespuesta del servidor:", respuesta)
+            print("\nRespuesta del servidor:", respuesta)
 
-            # if respuesta.split(':')[0][12:] == '1':
-            #     data_string = respuesta.split(':')[1]
-            #     data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
-            #     data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
+            if respuesta.split(':')[0][12:] == '1':
+                data_string = respuesta.split(':')[1]
+                data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
+                data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
 
-            #     # Eliminar los paréntesis y los espacios extra
-            #     data_string = re.sub(r"[()]", "", data_string)
-            #     data_string = re.sub(r"\s+", "", data_string)
+                # Eliminar los paréntesis y los espacios extra
+                data_string = re.sub(r"[()]", "", data_string)
+                data_string = re.sub(r"\s+", "", data_string)
 
-            #     # Dividir la cadena por las comas para obtener una lista de elementos
-            #     elementos = data_string.split(",")
-            #     print("\nCredenciales correctas.")
-            #     datos['id'] = elementos[0]
-            #     datos['usuario'] = elementos[1]
-            #     datos['tienda_id'] = elementos[2]
-            #     time.sleep(3)
-            datos['id'] = '1'
-            datos['usuario'] = 'elementos[1]'
-            datos['tienda_id'] = 'elementos[2]'
+                # Dividir la cadena por las comas para obtener una lista de elementos
+                elementos = data_string.split(",")
+                print("\nCredenciales correctas.")
+                datos['id'] = elementos[0]
+                datos['usuario'] = elementos[1]
+                datos['tienda_id'] = elementos[2]
+                time.sleep(3)
+                break
+            # datos['id'] = '1'
+            # datos['usuario'] = 'elementos[1]'
+            # datos['tienda_id'] = 'elementos[2]'
 
-            break
-            # else:
-            #     print("\nCredenciales incorrectas. Inténtelo de nuevo.")
-            #     time.sleep(3)
+            # break
+            else:
+                print("\nCredenciales incorrectas. Inténtelo de nuevo.")
+                time.sleep(3)
 
         while True :
             menu_principal()

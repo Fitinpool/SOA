@@ -70,7 +70,7 @@ def generar_codigo(cadena):
 #             newData = f'dbges1'
 #             sock.send((generar_codigo(newData) + newData).encode())
 #         else:
-#             newData = f'dbges0'
+#             newData = f'bdmmm'
 #             sock.send((generar_codigo(newData) + newData).encode())
             
 #     elif tokens[0] == '0':
@@ -87,11 +87,11 @@ def generar_codigo(cadena):
 def ejecutar_consulta_sql(consulta, variables, retornar_valor):
     # Establecer la conexión a la base de datos
     conexion = mysql.connector.connect(
-        host='localhost',
-        port=1313,
-        user='root',
-        password='root',
-        database='gestion_tienda',
+        host='51.222.153.62',
+        port=3306,
+        user='juliobar_arqui_soft',
+        password='~.$RWtM=_aYb',
+        database='juliobar_arqui_soft',
         buffered=True
     )
 
@@ -143,7 +143,7 @@ def procesar_mensaje(data_mensaje, sock):
         res = ejecutar_consulta_sql(consulta, variables, 1)
 
         if res == []:
-            newData = f'dbges0:No logrado'
+            newData = f'dbges:No logrado'
             sock.send((generar_codigo(newData) + newData).encode())
         elif res.rowcount > 0:
             # Si la consulta fue un SELECT, devolvemos los resultados
@@ -161,7 +161,7 @@ def procesar_mensaje(data_mensaje, sock):
 
             sock.send((generar_codigo(newData) + newData).encode())
         else:
-            newData = f'dbges0:No logrado'
+            newData = f'dbges:No logrado'
             sock.send((generar_codigo(newData) + newData).encode())
             
     elif tokens[0] == '0':
@@ -173,12 +173,12 @@ def procesar_mensaje(data_mensaje, sock):
 
         # En lugar de devolver los resultados de la consulta, devolvemos un mensaje de éxito o fracaso
         if res == []:
-            newData = f'dbges0:No logrado'
+            newData = f'dbges:No logrado'
             sock.send((generar_codigo(newData) + newData).encode())
         elif res > 0:
             newData = f'dbges1:Logrado'
         else:
-            newData = f'dbges0:No logrado'
+            newData = f'dbges:No logrado'
         sock.send((generar_codigo(newData) + newData).encode())
 
     else:
