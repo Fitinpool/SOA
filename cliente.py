@@ -78,16 +78,21 @@ def agregar_producto():
         tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
         mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
-        print("\nMensaje enviado al servidor:", mensaje)
 
         respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
         print("\nRespuesta del servidor:", respuesta)
 
-        # mensaje_sin_tamaño = f"histoadd:{precio}"
-        # tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
-        # mensaje = tamaño_mensaje + mensaje_sin_tamaño
-        # respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+        # Agregar el producto al historial de precios
+        producto_id = respuesta[39:]
+        mensaje_sin_tamaño_historial = f"histoadd:{precio}:{producto_id}"
+        tamaño_mensaje_historial = f"{len(mensaje_sin_tamaño):05d}"
+        mensaje_historial = tamaño_mensaje_historial + mensaje_sin_tamaño_historial
+        print("\nMensaje enviado al servidor:", mensaje_historial)
+
+        respuesta_historial = enviar_mensaje("127.0.0.1", 5000, mensaje)
+        print("\nRespuesta del servidor:", respuesta_historial)
+
 
     else:
         gestionar_productos()
@@ -148,11 +153,14 @@ def editar_producto():
     respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
     print("\nRespuesta del servidor:", respuesta)
 
-    # if precio != 'null':
-    #     mensaje_sin_tamaño = f"histoupdate:{id}:{stock}"
-    #     tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
-    #     mensaje = tamaño_mensaje + mensaje_sin_tamaño
-    #     respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+    if precio != 'null':
+        mensaje_sin_tamaño_historial = f"histoadd:{precio}:{id}"
+        tamaño_mensaje_historial = f"{len(mensaje_sin_tamaño):05d}"
+        mensaje_historial = tamaño_mensaje_historial + mensaje_sin_tamaño_historial
+        print("\nMensaje enviado al servidor:", mensaje_historial)
+
+        respuesta_historial = enviar_mensaje("127.0.0.1", 5000, mensaje)
+        print("\nRespuesta del servidor:", respuesta_historial)
 
 def eliminar_producto():
     limpiar_pantalla()
@@ -733,7 +741,7 @@ def historial_precios():
     print("\nHistorial de precios (por ID)\n")
     while True:
         search = input("Ingrese producto: ")
-        if search.isdigit() and search >= 0:
+        if search.isdigit() and int(search) >= 0:
             break
         else:
             print("\nEntrada incorrecta. Inténtelo de nuevo.")
