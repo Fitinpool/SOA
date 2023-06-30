@@ -663,6 +663,7 @@ def historial_precios():
 def menu_principal():
     limpiar_pantalla()
     print("------------- MENU PRINCIPAL ------------")
+    print("|          Bienvenido %s               |", "Julio") #datos['usuario']
     print("|                                      |")
     print("|   1. Registrar Venta                 |")
     print("|   2. Buscar Producto                 |")
@@ -718,40 +719,44 @@ if __name__ == "__main__":
 
             print("\nMensaje enviado al servidor:", mensaje)
 
-            respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+            # respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
-            print("\nRespuesta del servidor:", respuesta)
+            # print("\nRespuesta del servidor:", respuesta)
 
-            if respuesta.split(':')[2] == '1':
-                print("\nCredenciales correctas.")
+            break
+            # if respuesta.split(':')[2] == '1':
+            #     print("\nCredenciales correctas.")
+            #     datos['id'] = respuesta.split(':')[3]
+            #     datos['usuario'] = usuario
+            #     datos['tienda_id'] = respuesta.split(':')[4]
+
+            #     break
+            # else:
+            #     print("\nCredenciales incorrectas. Inténtelo de nuevo.")
+                
+        while True :
+            menu_principal()
+            opcion = input("\nIngrese su opción: ")
+
+            if opcion == '1':
+                registrar_venta()
+            elif opcion == '2':
+                buscar_producto()
+            elif opcion == '3':
+                ver_estadisticas()
+            elif opcion == '4':
+                gestionar_productos()
+            elif opcion == '5':
+                gestionar_categorias()
+            elif opcion == '6':
+                productos_menos_stock()
+            elif opcion == '7':
+                productos_cerca_vencer()
+            elif opcion == '8':
+                historial_precios()
+            elif opcion == '9':
                 break
             else:
-                print("\nCredenciales incorrectas. Inténtelo de nuevo.")
-                
+                print("\nEntrada no válida, intentelo de nuevo.")
             
-
-        menu_principal()
-        opcion = input("\nIngrese su opción: ")
-
-        if opcion == '1':
-            registrar_venta()
-        elif opcion == '2':
-            buscar_producto()
-        elif opcion == '3':
-            ver_estadisticas()
-        elif opcion == '4':
-            gestionar_productos()
-        elif opcion == '5':
-            gestionar_categorias()
-        elif opcion == '6':
-            productos_menos_stock()
-        elif opcion == '7':
-            productos_cerca_vencer()
-        elif opcion == '8':
-            historial_precios()
-        elif opcion == '9':
-            break
-        else:
-            print("\nEntrada no válida, intentelo de nuevo.")
-        
-        input("\nPresione Enter para continuar...")
+            input("\nPresione Enter para continuar...")
