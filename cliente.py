@@ -41,62 +41,56 @@ def agregar_producto():
     
     print("\nAgregar Producto\n")
 
-    opcion = input("Ingrese 9 para volver atrás o cualquier otra tecla para continuar: ")
 
-    if opcion != '9':
-        nombre = input("Ingrese el nombre del producto: ")
-        descripcion = input("Ingrese la descripción del producto: ")
+    nombre = input("Ingrese el nombre del producto: ")
+    descripcion = input("Ingrese la descripción del producto: ")
 
-        while True:
-            precio = input("Ingrese el precio del producto: ")
-            if precio.isdigit():
+    while True:
+        precio = input("Ingrese el precio del producto: ")
+        if precio.isdigit():
+            break
+        else:
+            print("\nEl precio debe ser un número entero. Inténtelo de nuevo.")
+    
+    while True:
+        stock = input("Ingrese el stock del producto: ")
+        if stock.isdigit():
+            break
+        else:
+            print("\nEl stock debe ser un número entero. Inténtelo de nuevo.")
+
+    while True:
+        fecha_vencimiento = input("Ingrese la fecha de vencimiento del producto (dd/mm/aaaa) o dejar en blanco: ")
+
+        if fecha_vencimiento == '':
+            fecha_vencimiento = '01/01/2000'
+            break
+        else:
+            try:
+                datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
                 break
-            else:
-                print("\nEl precio debe ser un número entero. Inténtelo de nuevo.")
-        
-        while True:
-            stock = input("Ingrese el stock del producto: ")
-            if stock.isdigit():
-                break
-            else:
-                print("\nEl stock debe ser un número entero. Inténtelo de nuevo.")
+            except ValueError:
+                print("\nFormato de fecha incorrecto. Debe ser dd/mm/aaaa. Inténtelo de nuevo.")
 
-        while True:
-            fecha_vencimiento = input("Ingrese la fecha de vencimiento del producto (dd/mm/aaaa) o dejar en blanco: ")
+    mensaje_sin_tamaño = f"gprodadd:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
+    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+    mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
-            if fecha_vencimiento == '':
-                fecha_vencimiento = '01/01/2000'
-                break
-            else:
-                try:
-                    datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
-                    break
-                except ValueError:
-                    print("\nFormato de fecha incorrecto. Debe ser dd/mm/aaaa. Inténtelo de nuevo.")
+    print("\nMensaje enviado al servidor:", mensaje)
 
-        mensaje_sin_tamaño = f"gprodadd:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
-        tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
-        mensaje = tamaño_mensaje + mensaje_sin_tamaño
+    respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
-        print("\nMensaje enviado al servidor:", mensaje)
+    print("\nRespuesta del servidor:", respuesta)
 
-        respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+    # Agregar el producto al historial de precios
+    producto_id = respuesta[39:]
+    mensaje_sin_tamaño_historial = f"histoadd:{precio}:{producto_id}"
+    tamaño_mensaje_historial = f"{len(mensaje_sin_tamaño_historial):05d}"
+    mensaje_historial = tamaño_mensaje_historial + mensaje_sin_tamaño_historial
+    print("\nMensaje enviado al servidor:", mensaje_historial)
 
-        print("\nRespuesta del servidor:", respuesta)
-
-        # Agregar el producto al historial de precios
-        producto_id = respuesta[39:]
-        mensaje_sin_tamaño_historial = f"histoadd:{precio}:{producto_id}"
-        tamaño_mensaje_historial = f"{len(mensaje_sin_tamaño_historial):05d}"
-        mensaje_historial = tamaño_mensaje_historial + mensaje_sin_tamaño_historial
-        print("\nMensaje enviado al servidor:", mensaje_historial)
-
-        respuesta_historial = enviar_mensaje("127.0.0.1", 5000, mensaje)
-        print("\nRespuesta del servidor:", respuesta_historial)
-
-
-    else:
-        gestionar_productos()
+    respuesta_historial = enviar_mensaje("127.0.0.1", 5000, mensaje)
+    print("\nRespuesta del servidor:", respuesta_historial)
 
 def editar_producto():
     limpiar_pantalla()
@@ -853,7 +847,7 @@ if __name__ == "__main__":
             usuario = input("\nUsuario: ")
             contraseña = input("Contraseña: ")
 
-            mensaje_sin_tamaño = f"login:{usuario},{contraseña}"
+            mensaje_sin_tamaño = f"loginvalida:{usuario},{contraseña}"
             tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
             mensaje = tamaño_mensaje + mensaje_sin_tamaño
 

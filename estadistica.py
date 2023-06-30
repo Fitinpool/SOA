@@ -33,7 +33,7 @@ def procesar_mensaje(data_mensaje, sock):
                 JOIN Productos p ON dv.producto_id = p.id\
             WHERE\
                 MONTH(v.fecha_venta) = {mes}\
-                AND YEAR(v.fecha_venta) = {año}\
+                AND YEAR(v.fecha_venta) = {año} \
             GROUP BY\
                 p.id, p.nombre\
             ORDER BY\

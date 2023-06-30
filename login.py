@@ -20,7 +20,7 @@ def procesar_mensaje(data_mensaje, sock):
     # Procesar la data
     tokens = data.split(":")
 
-    if tokens[0] == 'list':
+    if tokens[0] == 'valida':
         # 00060gprodedit:11:manzana:editando la manzanita:2000:50:10/12/2023
         
         query = ("SELECT id, nombre, tienda_id FROM Usuarios WHERE nombre = %s and password=%s;")
