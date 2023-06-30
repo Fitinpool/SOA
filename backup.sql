@@ -113,7 +113,6 @@ CREATE TABLE `Historial_Precios` (
   `fecha` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `producto_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `producto_id` (`producto_id`),
   CONSTRAINT `Historial_Precios_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `Productos` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -177,7 +176,7 @@ CREATE TABLE `Tiendas` (
 
 LOCK TABLES `Tiendas` WRITE;
 /*!40000 ALTER TABLE `Tiendas` DISABLE KEYS */;
-INSERT INTO `Tiendas` VALUES (1,'giadash SA'),(2,'UDP');
+INSERT INTO `Tiendas` VALUES (1,'Giadash SA'),(2,'UDP');
 /*!40000 ALTER TABLE `Tiendas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -196,7 +195,7 @@ CREATE TABLE `Usuarios` (
   PRIMARY KEY (`id`),
   KEY `tienda_id` (`tienda_id`),
   CONSTRAINT `Usuarios_ibfk_1` FOREIGN KEY (`tienda_id`) REFERENCES `Tiendas` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -205,7 +204,7 @@ CREATE TABLE `Usuarios` (
 
 LOCK TABLES `Usuarios` WRITE;
 /*!40000 ALTER TABLE `Usuarios` DISABLE KEYS */;
-INSERT INTO `Usuarios` VALUES (2,'jbarra','1234',1),(3,'vvergara','1234',2),(4,'mguzman','1234',1);
+INSERT INTO `Usuarios` VALUES (1,'jbarra','1234',1),(2,'vvergara','1234',1),(3,'mguzman','1234',1);
 /*!40000 ALTER TABLE `Usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -223,7 +222,7 @@ CREATE TABLE `Ventas` (
   PRIMARY KEY (`id`),
   KEY `tienda_id` (`tienda_id`),
   CONSTRAINT `Ventas_ibfk_1` FOREIGN KEY (`tienda_id`) REFERENCES `Tiendas` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -244,4 +243,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-06-30 15:12:48
+-- Dump completed on 2023-06-30 18:25:22

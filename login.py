@@ -29,6 +29,7 @@ def procesar_mensaje(data_mensaje, sock):
 
         mensaje = 'dbges1:' + query + ':' + variables
 
+        print("Mensaje:", mensaje)
         mensaje = generar_codigo(mensaje) + mensaje
 
         sock.send(mensaje.encode())
@@ -43,18 +44,19 @@ def procesar_mensaje(data_mensaje, sock):
                 amount_received += len (data)
             
             data = data.decode()
+
+            print(data)
             
             if data:
                 data = data[7:].split(':')
-                print(data)
                 if data[0] == '1':
-                    print("Productos Encontrados.")
-                    newData = f'gprod{data[1]}'
+                    print("Usario Encontrados.")
+                    newData = f'logju1:{data[1]}'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
                 else:
-                    print("Producto no Encontrados.")
-                    newData = f'gprod Productos no fueron encontrados!'
+                    print("Usuario no Encontrados.")
+                    newData = f'logju Usuario no fue encontrado!'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
             else:
@@ -96,7 +98,7 @@ def enviar_mensaje(ip, puerto, mensaje):
 def main():
     ip = "127.0.0.1"  # Dirección IP del servidor local
     puerto = 5000  # Puerto del servidor local
-    mensaje = "00010sinitlogin"  # Mensaje a enviar
+    mensaje = "00010sinitlogju"  # Mensaje a enviar
 
     enviar_mensaje(ip, puerto, mensaje)
 

@@ -139,6 +139,7 @@ def procesar_mensaje(data_mensaje, sock):
 
         variables = tuple(tokens[2].split(",")) if len(tokens) > 2 else None
 
+        print(consulta, variables)
         res = ejecutar_consulta_sql(consulta, variables, 1)
 
         if res == []:
@@ -153,7 +154,6 @@ def procesar_mensaje(data_mensaje, sock):
                 tabla = consulta.split(' ')[2]
 
                 res2 = ejecutar_consulta_sql(f'SELECT MAX(id) FROM {tabla}', None, 1)
-                print(res2)
                 datitos = res2.fetchall()[0][0]
                 newData = f'dbges1:Logrado! ID: {datitos}'  # Devolvemos el ID del registro insertado
             else:
@@ -169,7 +169,6 @@ def procesar_mensaje(data_mensaje, sock):
 
         variables = None if len(tokens) < 3 else tuple(tokens[2].split(","))
 
-        print(consulta, variables)
         res = ejecutar_consulta_sql(consulta, variables, 0)
 
         # En lugar de devolver los resultados de la consulta, devolvemos un mensaje de éxito o fracaso
@@ -181,6 +180,9 @@ def procesar_mensaje(data_mensaje, sock):
         else:
             newData = f'dbges0:No logrado'
         sock.send((generar_codigo(newData) + newData).encode())
+
+    else:
+        print("Sin procesar.")
 
 def enviar_mensaje(ip, puerto, mensaje):
     # Crear el socket

@@ -1,3 +1,4 @@
+import time
 import os
 import platform
 import socket
@@ -82,15 +83,16 @@ def agregar_producto():
 
     print("\nRespuesta del servidor:", respuesta)
 
-    # Agregar el producto al historial de precios
-    producto_id = respuesta[39:]
-    mensaje_sin_tamaño_historial = f"histoadd:{precio}:{producto_id}"
-    tamaño_mensaje_historial = f"{len(mensaje_sin_tamaño_historial):05d}"
-    mensaje_historial = tamaño_mensaje_historial + mensaje_sin_tamaño_historial
-    print("\nMensaje enviado al servidor:", mensaje_historial)
+    # # Agregar el producto al historial de precios
+    # print(respuesta[39:])
+    # producto_id = respuesta[39:]
+    # mensaje_sin_tamaño_historial = f"geshiadd:{precio}:{producto_id}"
+    # tamaño_mensaje_historial = f"{len(mensaje_sin_tamaño_historial):05d}"
+    # mensaje_historial = tamaño_mensaje_historial + mensaje_sin_tamaño_historial
+    # print("\nMensaje enviado al servidor:", mensaje_historial)
 
-    respuesta_historial = enviar_mensaje("127.0.0.1", 5000, mensaje)
-    print("\nRespuesta del servidor:", respuesta_historial)
+    # respuesta_historial = enviar_mensaje("127.0.0.1", 5000, mensaje_historial)
+    # print("\nRespuesta del servidor:", respuesta_historial)
 
 def editar_producto():
     limpiar_pantalla()
@@ -114,16 +116,20 @@ def editar_producto():
     while True:
         precio = input("Ingrese el precio del producto: ")
         
-        if precio.isdigit() or precio == '':
+        if precio == '':
             precio = 'null'
+            break
+        elif precio.isdigit():
             break
         else:
             print("\nEl precio debe ser un número entero. Inténtelo de nuevo.")
     
     while True:
         stock = input("Ingrese el stock del producto: ")
-        if stock.isdigit() or stock == '':
+        if stock == '':
             stock = 'null'
+            break
+        elif stock.isdigit():
             break
         else:
             print("\nEl stock debe ser un número entero. Inténtelo de nuevo.")
@@ -145,17 +151,19 @@ def editar_producto():
     tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
     mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
+    print("\nMensaje enviado al servidor:", mensaje)
+
     respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
     print("\nRespuesta del servidor:", respuesta)
 
-    if precio != 'null':
-        mensaje_sin_tamaño_historial = f"histoadd:{precio}:{id}"
-        tamaño_mensaje_historial = f"{len(mensaje_sin_tamaño_historial):05d}"
-        mensaje_historial = tamaño_mensaje_historial + mensaje_sin_tamaño_historial
-        print("\nMensaje enviado al servidor:", mensaje_historial)
+    # if precio != 'null':
+    #     mensaje_sin_tamaño_historial = f"geshiadd:{precio}:{id}"
+    #     tamaño_mensaje_historial = f"{len(mensaje_sin_tamaño_historial):05d}"
+    #     mensaje_historial = tamaño_mensaje_historial + mensaje_sin_tamaño_historial
+    #     print("\nMensaje enviado al servidor:", mensaje_historial)
 
-        respuesta_historial = enviar_mensaje("127.0.0.1", 5000, mensaje)
-        print("\nRespuesta del servidor:", respuesta_historial)
+    #     respuesta_historial = enviar_mensaje("127.0.0.1", 5000, mensaje_historial)
+    #     print("\nRespuesta del servidor:", respuesta_historial)
 
 def eliminar_producto():
     limpiar_pantalla()
@@ -290,24 +298,7 @@ def registrar_venta():
         tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
         mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
-<<<<<<< HEAD
-        # Guardar los detalles del producto en una tupla
-        detalles_ventas.append((int(venta_id), id_producto, cantidad_producto, precio_producto))
-        
-        print("\Editar Producto\n")
-        id = id_producto
-        nombre = 'null'
-        descripcion = 'null'
-        precio = 'null'
-        stock = 'null'
-        fecha_vencimiento = 'null'
-        mensaje_sin_tamaño = f"gprodedit:{id}:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
-        tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
-        mensaje = tamaño_mensaje + mensaje_sin_tamaño
-        respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
-=======
         print("\nMensaje enviado al servidor:", mensaje)
->>>>>>> 1541c45 (cambios mati)
 
         respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
@@ -355,28 +346,30 @@ def registrar_venta():
                     print("Valor inválido. Intente nuevamente.")
 
             # Enviar los detalles de venta al servicio de gestión de ventas
-            mensaje_sin_tamaño = f"gventaddDet:{venta_id}" + "," + id_producto + "," + cantidad_producto + "," + precio_producto
+            mensaje_sin_tamaño = f"gventaddDet:{venta_id},{id_producto},{cantidad_producto},{precio_producto}"
             tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
             mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
             print("\nMensaje enviado al servidor:", mensaje)
 
             respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
-            print("\nRespuesta del servidor:", respuesta)
-            # Guardar los detalles del producto en una tupla
-            detalles_ventas.append((int(venta_id), id_producto, cantidad_producto, precio_producto))
 
-            print("\Editar Producto\n")
-            id = id_producto
-            nombre = 'null'
-            descripcion = 'null'
-            precio = 'null'
-            stock = obtener_stock_por_id(tuplas, id) - cantidad_producto
-            fecha_vencimiento = 'null'
-            mensaje_sin_tamaño = f"gprodedit:{id}:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
-            tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
-            mensaje = tamaño_mensaje + mensaje_sin_tamaño
-            respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+            print("\nRespuesta del servidor:", respuesta)
+
+            if respuesta.split(':')[0][12:] == '1':
+                print("\Editar Producto\n")
+                id = id_producto
+                nombre = 'null'
+                descripcion = 'null'
+                precio = 'null'
+                stock = obtener_stock_por_id(tuplas, id) - cantidad_producto
+                fecha_vencimiento = 'null'
+                mensaje_sin_tamaño = f"gprodedit:{id}:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
+                tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+                mensaje = tamaño_mensaje + mensaje_sin_tamaño
+                respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+            
+            time.sleep(2)
 
 
 def ver_productos():
@@ -493,16 +486,18 @@ def productos_menos_vendidos():
         # Dividir la cadena por las comas para obtener una lista de elementos
         elementos = data_string.split(",")
 
+        
         # Agrupar los elementos en tuplas de 6
         tuplas = [tuple(elementos[i:i+6]) for i in range(0, len(elementos), 6)]
 
+        print(tuplas)
         # Convertir los valores de cadena a los tipos de datos apropiados
-        tuplas = [(int(id), nombre.strip("'"), descripcion.strip("'"), Decimal(precio.strip("'")), int(stock), datetime.strptime(fecha.strip("'"), "%Y-%m-%d").date()) for id, nombre, descripcion, precio, stock, fecha in tuplas]
+        tuplas = [(int(id), nombre.strip("'"), total_vendido.strip("'")) for id, nombre, total_vendido in tuplas]
 
         table = PrettyTable()
 
         # Añadir las columnas
-        table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+        table.field_names = ["ID", "Nombre Producto", "Total vendido"]
         print("datitos ", tuplas)
         print("\nProductos menos vendidos\n")
         # Añadir las filas
@@ -544,14 +539,16 @@ def  productos_mas_vendidos():
         tuplas = [tuple(elementos[i:i+6]) for i in range(0, len(elementos), 6)]
 
         # Convertir los valores de cadena a los tipos de datos apropiados
-        tuplas = [(int(id), nombre.strip("'"), descripcion.strip("'"), Decimal(precio.strip("'")), int(stock), datetime.strptime(fecha.strip("'"), "%Y-%m-%d").date()) for id, nombre, descripcion, precio, stock, fecha in tuplas]
+        print(tuplas)
+        # Convertir los valores de cadena a los tipos de datos apropiados
+        tuplas = [(int(id), nombre.strip("'"), total_vendido.strip("'")) for id, nombre, total_vendido in tuplas]
 
         table = PrettyTable()
 
         # Añadir las columnas
-        table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+        table.field_names = ["ID", "Nombre Producto", "Total vendido"]
         print("datitos ", tuplas)
-        print("\nProductos menos vendidos\n")
+        print("\nProductos mas vendidos\n")
         # Añadir las filas
         for row in tuplas:
             table.add_row(row)
@@ -814,7 +811,7 @@ def historial_precios():
         else:
             print("\nEntrada incorrecta. Inténtelo de nuevo.")
 
-    mensaje_sin_tamaño = f"histolist:{search}"
+    mensaje_sin_tamaño = f"geshilist:{search}"
     tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
     mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
@@ -841,12 +838,12 @@ def historial_precios():
         tuplas = [tuple(elementos[i:i+6]) for i in range(0, len(elementos), 6)]
 
         # Convertir los valores de cadena a los tipos de datos apropiados
-        tuplas = [(int(id), nombre.strip("'"), descripcion.strip("'"), Decimal(precio.strip("'")), int(stock), datetime.strptime(fecha.strip("'"), "%Y-%m-%d").date()) for id, nombre, descripcion, precio, stock, fecha in tuplas]
+        tuplas = [(int(id), nombre.strip("'"), Decimal(precio.strip("'"))) for id, nombre, precio in tuplas]
 
         table = PrettyTable()
 
         # Añadir las columnas
-        table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+        table.field_names = ["ID", "Nombre", "Precio"]
         print("datitos ", tuplas)
         # Añadir las filas
         for row in tuplas:
@@ -858,7 +855,7 @@ def historial_precios():
 def menu_principal():
     limpiar_pantalla()
     print("------------- MENU PRINCIPAL ------------")
-    print("|          Bienvenido %s               |", "Julio") #datos['usuario']
+    print(f"|          Bienvenido {datos['usuario']}  |")
     print("|                                      |")
     print("|   1. Registrar Venta                 |")
     print("|   2. Buscar Producto                 |")
@@ -898,6 +895,7 @@ if __name__ == "__main__":
                 print("\nEntrada no válida, intentelo de nuevo.")
 
         while True:
+
             limpiar_pantalla()
             print("------------- LOGIN ------------")
             print("|                             |")
@@ -908,27 +906,41 @@ if __name__ == "__main__":
             usuario = input("\nUsuario: ")
             contraseña = input("Contraseña: ")
 
-            mensaje_sin_tamaño = f"loginvalida:{usuario},{contraseña}"
+            mensaje_sin_tamaño = f"logjuvalida:{usuario},{contraseña}"
             tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
             mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
-            print("\nMensaje enviado al servidor:", mensaje)
+            # print("\nMensaje enviado al servidor:", mensaje)
 
-            respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+            # respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
-            print("\nRespuesta del servidor:", respuesta)
+            # print("\nRespuesta del servidor:", respuesta)
+
+            # if respuesta.split(':')[0][12:] == '1':
+            #     data_string = respuesta.split(':')[1]
+            #     data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
+            #     data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
+
+            #     # Eliminar los paréntesis y los espacios extra
+            #     data_string = re.sub(r"[()]", "", data_string)
+            #     data_string = re.sub(r"\s+", "", data_string)
+
+            #     # Dividir la cadena por las comas para obtener una lista de elementos
+            #     elementos = data_string.split(",")
+            #     print("\nCredenciales correctas.")
+            #     datos['id'] = elementos[0]
+            #     datos['usuario'] = elementos[1]
+            #     datos['tienda_id'] = elementos[2]
+            #     time.sleep(3)
+            datos['id'] = '1'
+            datos['usuario'] = 'elementos[1]'
+            datos['tienda_id'] = 'elementos[2]'
 
             break
-            # if respuesta.split(':')[2] == '1':
-            #     print("\nCredenciales correctas.")
-            #     datos['id'] = respuesta.split(':')[3]
-            #     datos['usuario'] = usuario
-            #     datos['tienda_id'] = respuesta.split(':')[4]
-
-            #     break
             # else:
             #     print("\nCredenciales incorrectas. Inténtelo de nuevo.")
-                
+            #     time.sleep(3)
+
         while True :
             menu_principal()
             opcion = input("\nIngrese su opción: ")

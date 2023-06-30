@@ -90,7 +90,6 @@ CREATE TABLE `Historial_Precios` (
   `fecha` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `producto_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `producto_id` (`producto_id`),
   CONSTRAINT `Historial_Precios_ibfk_1` FOREIGN KEY (`producto_id`) REFERENCES `Productos` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

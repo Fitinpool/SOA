@@ -61,13 +61,11 @@ def procesar_mensaje(data_mensaje, sock):
                 print("Conexión cerrada por el servidor.")
             break
     elif tokens[0] == 'addDet':
-        venta_id = tokens[1]
-
-        variables = tokens[2]
+        variables = tokens[1]
 
         query = "INSERT INTO Detalles_Ventas (venta_id, producto_id, cantidad, precio) VALUES ("+ variables + ");"
 
-        mensaje = 'dbges0:' + query + ':' + ','.join(map(str, variables))
+        mensaje = 'dbges0:' + query
 
         mensaje = generar_codigo(mensaje) + mensaje
         print(mensaje)
@@ -88,8 +86,12 @@ def procesar_mensaje(data_mensaje, sock):
                 print("SOY LA DATA DE RESPUESTA:", data)
                 if data.split(':')[0] == '1':
                     print("Detalle de venta agregado.")
+                    newData = f'gvent1:Detalle de Venta {tokens[1]} fue agregada!'
+                    sock.send((generar_codigo(newData) + newData).encode())
                 else:
                     print("Detalle de venta no agregado.")
+                    newData = f'gvent Detalle de venta {tokens[1]} no fue agregada!'
+                    sock.send((generar_codigo(newData) + newData).encode())
             else:
                 print("Conexión cerrada por el servidor.")
             break

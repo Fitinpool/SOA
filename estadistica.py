@@ -21,8 +21,6 @@ def procesar_mensaje(data_mensaje, sock):
     tokens = data.split(":")
 
     if tokens[0] == 'masVend':
-        mes = datetime.now().date().month
-        año = datetime.now().date().year
         query = ("SELECT\
                 p.id,\
                 p.nombre,\
@@ -32,8 +30,8 @@ def procesar_mensaje(data_mensaje, sock):
                 JOIN Detalles_Ventas dv ON v.id = dv.venta_id\
                 JOIN Productos p ON dv.producto_id = p.id\
             WHERE\
-                MONTH(v.fecha_venta) = {mes}\
-                AND YEAR(v.fecha_venta) = {año} \
+                MONTH(v.fecha_venta) = 06\
+                AND YEAR(v.fecha_venta) = 2023 \
             GROUP BY\
                 p.id, p.nombre\
             ORDER BY\
@@ -88,8 +86,8 @@ def procesar_mensaje(data_mensaje, sock):
                 JOIN Detalles_Ventas dv ON v.id = dv.venta_id\
                 JOIN Productos p ON dv.producto_id = p.id\
             WHERE\
-                MONTH(v.fecha_venta) = {mes}\
-                AND YEAR(v.fecha_venta) = {año}\
+                MONTH(v.fecha_venta) = 06\
+                AND YEAR(v.fecha_venta) = 2023\
             GROUP BY\
                 p.id, p.nombre\
             ORDER BY\

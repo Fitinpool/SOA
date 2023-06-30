@@ -131,7 +131,7 @@ def enviar_mensaje(ip, puerto, mensaje):
 def main():
     ip = "127.0.0.1"  # Dirección IP del servidor local
     puerto = 5000  # Puerto del servidor local
-    mensaje = "00010sinithisto"  # Mensaje a enviar
+    mensaje = "00010sinitgeshi"  # Mensaje a enviar
 
     enviar_mensaje(ip, puerto, mensaje)
 
