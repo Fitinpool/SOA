@@ -218,12 +218,18 @@ def ver_producto_id():
         # Imprimir la tabla
         print(table)
 
+def obtener_stock_por_id(productos, id):
+    for producto in productos:
+        if producto[0] == id:
+            return producto[4]  # Retornar el valor del stock (tercer elemento de la tupla)
+    return None
 
 def limpiar_pantalla():
     if platform.system() == "Windows":
         os.system('cls')
     else:
         os.system('clear')
+
 
 def registrar_venta():
     limpiar_pantalla()
@@ -260,8 +266,6 @@ def registrar_venta():
     print(venta_id)
     print("\nRegistrando Venta\n")
 
-    
-
     while True:
         try:
 
@@ -277,21 +281,16 @@ def registrar_venta():
     
     detalles_ventas = []
     for i in range(cantidad_prod):
-        limpiar_pantalla()
 
         # Mostrar la lista de productos existentes
-        ver_producto_id()
+        limpiar_pantalla()
+        mensaje = "Ver producto por ID"
 
-        # Solicitar los detalles del producto
-        while True:
-            try:
-                id_producto = int(input("\nIngrese el ID del producto: "))
-                cantidad_producto = int(input("Ingrese la cantidad de este producto vendido: "))
-                precio_producto = float(input("Ingrese el precio de venta del producto: "))
-                break
-            except ValueError:
-                print("Valor inválido. Intente nuevamente.")
+        mensaje_sin_tamaño = f"gprodlist"
+        tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+        mensaje = tamaño_mensaje + mensaje_sin_tamaño
 
+<<<<<<< HEAD
         # Guardar los detalles del producto en una tupla
         detalles_ventas.append((int(venta_id), id_producto, cantidad_producto, precio_producto))
         
@@ -306,16 +305,78 @@ def registrar_venta():
         tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
         mensaje = tamaño_mensaje + mensaje_sin_tamaño
         respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+=======
+        print("\nMensaje enviado al servidor:", mensaje)
+>>>>>>> 1541c45 (cambios mati)
 
-    # Enviar los detalles de venta al servicio de gestión de ventas
-    mensaje_sin_tamaño = f"gventaddDet:{venta_id}:{cantidad_prod}:{','.join(map(str, detalles_ventas))}"
-    tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
-    mensaje = tamaño_mensaje + mensaje_sin_tamaño
+        respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
-    print("\nMensaje enviado al servidor:", mensaje)
+        print("\nRespuesta del servidor:", respuesta)
 
-    respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
-    print("\nRespuesta del servidor:", respuesta)
+        data_string = respuesta[12:]
+
+        if data_string != ' Productos no fueron encontrados!':
+            data_string = re.sub(r"Decimal\('(\d+\.\d+)'\)", r"'\1'", data_string)
+            data_string = re.sub(r"datetime\.date\((\d+), (\d+), (\d+)\)", r"'\1-\2-\3'", data_string)
+
+            # Eliminar los paréntesis y los espacios extra
+            data_string = re.sub(r"[()]", "", data_string)
+            data_string = re.sub(r"\s+", "", data_string)
+
+            # Dividir la cadena por las comas para obtener una lista de elementos
+            elementos = data_string.split(",")
+
+            # Agrupar los elementos en tuplas de 6
+            tuplas = [tuple(elementos[i:i+6]) for i in range(0, len(elementos), 6)]
+
+            # Convertir los valores de cadena a los tipos de datos apropiados
+            tuplas = [(int(id), nombre.strip("'"), descripcion.strip("'"), Decimal(precio.strip("'")), int(stock), datetime.strptime(fecha.strip("'"), "%Y-%m-%d").date()) for id, nombre, descripcion, precio, stock, fecha in tuplas]
+
+            table = PrettyTable()
+
+            # Añadir las columnas
+            table.field_names = ["ID", "Nombre", "Descripción", "Precio", "Stock", "Fecha de vencimiento"]
+            print("datitos ", tuplas)
+            # Añadir las filas
+            for row in tuplas:
+                table.add_row(row)
+
+            # Imprimir la tabla
+            print(table)
+            
+            # Solicitar los detalles del producto
+            while True:
+                try:
+                    id_producto = int(input("\nIngrese el ID del producto: "))
+                    cantidad_producto = int(input("Ingrese la cantidad de este producto vendido: "))
+                    precio_producto = float(input("Ingrese el precio de venta del producto: "))
+                    break
+                except ValueError:
+                    print("Valor inválido. Intente nuevamente.")
+
+            # Enviar los detalles de venta al servicio de gestión de ventas
+            mensaje_sin_tamaño = f"gventaddDet:{venta_id}" + "," + id_producto + "," + cantidad_producto + "," + precio_producto
+            tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+            mensaje = tamaño_mensaje + mensaje_sin_tamaño
+
+            print("\nMensaje enviado al servidor:", mensaje)
+
+            respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
+            print("\nRespuesta del servidor:", respuesta)
+            # Guardar los detalles del producto en una tupla
+            detalles_ventas.append((int(venta_id), id_producto, cantidad_producto, precio_producto))
+
+            print("\Editar Producto\n")
+            id = id_producto
+            nombre = 'null'
+            descripcion = 'null'
+            precio = 'null'
+            stock = obtener_stock_por_id(tuplas, id) - cantidad_producto
+            fecha_vencimiento = 'null'
+            mensaje_sin_tamaño = f"gprodedit:{id}:{nombre}:{descripcion}:{precio}:{stock}:{fecha_vencimiento}"
+            tamaño_mensaje = f"{len(mensaje_sin_tamaño):05d}"
+            mensaje = tamaño_mensaje + mensaje_sin_tamaño
+            respuesta = enviar_mensaje("127.0.0.1", 5000, mensaje)
 
 
 def ver_productos():

@@ -62,50 +62,37 @@ def procesar_mensaje(data_mensaje, sock):
             break
     elif tokens[0] == 'addDet':
         venta_id = tokens[1]
-        print(type(tokens[2]))
-        cant_prod = int(tokens[2])
-        
-        for i in range(cant_prod):
-            liempieza = tokens[3].replace('(', '')
-            liempieza = liempieza.replace(')', '')
-            tuplas = liempieza.split(',')
-            tuplas = [tuple(tuplas[i:i+4]) for i in range(0, len(tuplas), 4)]
 
-            print(tuplas)
-            producto_id = int(tuplas[i][0])
-            cantidad = int(tuplas[i][1])
-            precio = float(tuplas[i][2])
+        variables = tokens[2]
 
-            query = "INSERT INTO Detalles_Ventas (venta_id, producto_id, cantidad, precio) VALUES (%s,%s,%d,%s)"
-            variables = (venta_id, producto_id, cantidad, precio)
+        query = "INSERT INTO Detalles_Ventas (venta_id, producto_id, cantidad, precio) VALUES ("+ variables + ");"
 
-            mensaje = 'dbges1:' + query + ':' + ','.join(map(str, variables))
+        mensaje = 'dbges0:' + query + ':' + ','.join(map(str, variables))
 
-            mensaje = generar_codigo(mensaje) + mensaje
-            print(mensaje)
-            sock.send(mensaje.encode())
+        mensaje = generar_codigo(mensaje) + mensaje
+        print(mensaje)
+        sock.send(mensaje.encode())
 
-            while True:
-                amount_received = 0
-                amount_expected = int(sock.recv(5))
+        while True:
+            amount_received = 0
+            amount_expected = int(sock.recv(5))
 
-                while amount_received < amount_expected:
-                    data = sock.recv(amount_expected - amount_received)
-                    amount_received += len(data)
+            while amount_received < amount_expected:
+                data = sock.recv(amount_expected - amount_received)
+                amount_received += len(data)
 
-                data = data.decode()
+            data = data.decode()
 
-                if data:
-                    data = data[7:]
-                    print("SOY LA DATA DE RESPUESTA:", data)
-                    if data.split(':')[0] == '1':
-                        print("Detalle de venta agregado.")
-                    else:
-                        print("Detalle de venta no agregado.")
+            if data:
+                data = data[7:]
+                print("SOY LA DATA DE RESPUESTA:", data)
+                if data.split(':')[0] == '1':
+                    print("Detalle de venta agregado.")
                 else:
-                    print("Conexión cerrada por el servidor.")
-                break
-
+                    print("Detalle de venta no agregado.")
+            else:
+                print("Conexión cerrada por el servidor.")
+            break
 
 def enviar_mensaje(ip, puerto, mensaje):
     # Crear el socket
