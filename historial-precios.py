@@ -24,7 +24,7 @@ def procesar_mensaje(data_mensaje, sock):
 
         query = ("INSERT INTO Historial_Precios (producto_id, precio) VALUES (%s, %s)")
         
-        mensaje = 'dbges1:' + query + ':' + str(tokens[1]) 
+        mensaje = 'dbges1:' + query + ':' + str(tokens[1])  + ',' + str(tokens[2])
 
         mensaje = generar_codigo(mensaje) + mensaje
 
@@ -45,62 +45,24 @@ def procesar_mensaje(data_mensaje, sock):
                 data = data[7:].split(':')
                 print(data)
                 if data[0] == '1':
-                    print("Producto encontrado.")
+                    print("Producto agregado.")
                     newData = f'histo{data[1]}'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
                 else:
-                    print("Producto no encontrados.")
-                    newData = f'histo Producto no encontrado!'
+                    print("Producto no agregado.")
+                    newData = f'histo Producto no agregado!'
                     sock.send((generar_codigo(newData) + newData).encode())
                     break
             else:
                 print("Conexión cerrada por el servidor.")
                 break
 
-    # if tokens[0] == 'update':
-
-    #     query = ("UPDATE Historial_Precios SET precio = %s WHERE producto = %s")
-        
-    #     mensaje = 'dbges1:' + query + ':' + str(tokens[1]) 
-
-    #     mensaje = generar_codigo(mensaje) + mensaje
-
-    #     sock.send(mensaje.encode())
-    
-    #     while True:
-    #         # Recibir y procesar las respuestas del servidor
-    #         amount_received = 0
-    #         amount_expected = int(sock.recv (5))
-
-    #         while amount_received < amount_expected:
-    #             data = sock.recv(amount_expected - amount_received)
-    #             amount_received += len (data)
-            
-    #         data = data.decode()
-            
-    #         if data:
-    #             data = data[7:].split(':')
-    #             print(data)
-    #             if data[0] == '1':
-    #                 print("Producto encontrado.")
-    #                 newData = f'histo{data[1]}'
-    #                 sock.send((generar_codigo(newData) + newData).encode())
-    #                 break
-    #             else:
-    #                 print("Producto no encontrados.")
-    #                 newData = f'histo Producto no encontrado!'
-    #                 sock.send((generar_codigo(newData) + newData).encode())
-    #                 break
-    #         else:
-    #             print("Conexión cerrada por el servidor.")
-    #             break
-
     if tokens[0] == 'list':
 
-        query = ("SELECT id, nombre, precio FROM Productos WHERE id = %d")
+        query = ("SELECT id, nombre, precio FROM Productos WHERE id = " + tokens[1] + ";")
         
-        mensaje = 'dbges1:' + query + ':' + str(tokens[1]) 
+        mensaje = 'dbges1:' + query
 
         mensaje = generar_codigo(mensaje) + mensaje
 
